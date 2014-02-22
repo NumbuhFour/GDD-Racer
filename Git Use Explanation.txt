@@ -1,0 +1,46 @@
+Setup:
+	-Make a github account.
+	-Tell me your github account.
+	-On GitHub goto Help > Set Up Git then Download and install Git. Don't do the native app Green button thing at the top. It kinda really sucks and despite looking nicer is far less intuitive.
+	-Open up Git Gui
+	-Click "Clone Existing Repository"
+	-In Source Location put: https://github.com/fad4470/GDD-Racer
+	-For the target directory, browse to some folder where you'll want to put the project (Like C:/Whatevs/School/GDD) then at the end of the target path add "GDD-Racer"
+		#To clarify, in this example the whole path should be "C:/Wateves/School/GDD/GDD-Racer" HOWEVER the GDD-Racer folder should not exist yet.
+	-Once it is done, go to Edit > Options and set your username and email in the upper left.
+		
+	
+
+Editing procedure:
+
+	Before you start editing things:
+		-Remote > Fetch From > origin  #This fetches information about any changes that have occurred to the repo, but doesn't actually apply the changes to your local copy of the repo.
+		-If it says anything has changed, click Merge > Local Merge > Merge #If any changes were made, this will apply them to your local copy of the repo
+		
+	Make your additions, edits, or whatever now
+
+	When you want to push your changes for everyone to see:
+		-Click "Rescan"		#This checks your local copy of the repo for any changes you have made.
+		-To select which changes you want to commit, click on the file icons next to the file names in the upper right "Unstaged Changes" box. This will move them into the "Staged Changes" box to be committed.
+			-Alternatively, you can click the "Unstaged Changes" button to select all changes for committing. (If you added any new files, it will give you a popup saying "Are you sure you want to add this file" or something. Click yes)
+		-Add your commit messages explaining what you have done into the lower right box
+		-Click "Sign Off"	#Basically adds a signature
+		-Click Commit	#This only makes a commit log of your changes to your local copy of the repo.
+		
+	BEFORE YOU PUSH the changes to the actual server, make sure no one else has made edits to the files you have changed by merging again.
+		-Remote > Fetch From > origin
+		-Merge > Local Merge > Merge
+
+	If someone has made changes while you were working, it should automatically merge the changes in the file together and generate a Commit message
+		-Open the file that had the conflict and merge the conflicting addtions together. There should be some lines that are like 
+			+<<< HEAD				#This is the beginning of the list of the conflicting additions
+			+====					#This is the delimiter line splitting each of individual additions
+			+>>>> origin/master		#This is where that whole thing ends.
+		-Basically, delete ^those lines and put the chunks of code where they should be.
+		-Then click RESCAN and then the icon next to the file you just merged in the "Unstaged Changes" box and signoff + commit the file like any other.
+		
+
+	Finally pushing your changes:
+		-Click the Push button
+		-Click "Push"
+		-Enter your Github username then password
