@@ -1,0 +1,15 @@
+Possible powerups:
+
+	Stored until used
+		Smoke screen (police temporarily lose vision of you, cant get exact position)
+		Speed boost: massive speed burst (makes turning hard?)
+
+	Instantly used on pickup
+		Repair: heals your car somewhat (restores lost speed from colissions)
+	
+Missions?
+	Move to specific areas while still being chased, linking between areas helps you progress (points?)
+
+City: use a grid system to layout roads, but have not all nodes linked
+
+
