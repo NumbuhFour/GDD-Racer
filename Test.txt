@@ -6,3 +6,6 @@ Doing some stuff
 Rawr rawr rawr
 
 Wolololoololo
+
+var brett = "Brett haz tested";
+var tested = true;
