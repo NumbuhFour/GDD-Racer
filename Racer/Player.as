@@ -73,24 +73,32 @@
 				velocityR *= 0.85;
 			}
 			
-			if(up)
+			if(!space)
 			{
-				accel = MathHelper.clamp(accel + accelSpeed, -maxAccel, maxAccel);
-			}
-			if(down)
-			{
-				accel = MathHelper.clamp(accel - accelSpeed, -maxAccel, maxAccel);
+				if(up)
+				{
+					accel = MathHelper.clamp(accel + accelSpeed, -maxAccel, maxAccel);
+				}
+				if(down)
+				{
+					accel = MathHelper.clamp(accel - accelSpeed, -maxAccel, maxAccel);
+				}
+				
+				if(up == down){
+					accel *= 0.95;
+				}
+			}else{ //Handbreak
+				velocityR *= 0.86;
+				accel *= 0.92;
 			}
 			
-			if(up == down){
-				accel *= 0.95;
-			}
 			
-			if(space){ //Handbrake
-				//accel = MathHelper.clamp(accel, -maxAccel*0.4,maxAccel*0.4);
-				accel *= 0.89
-			}
+			//Basing rotation speed on acceleration
+			var accelPerc:Number =  MathHelper.clamp(accel/(maxAccel/3),0,1);
+			velocityR *= accelPerc;
 			
+			
+			// Drifing float cleanup
 			if(Math.abs(accel) < 0.5) accel = 0;
 			if(Math.abs(velocityR) < 0.5) velocityR = 0;
 			
