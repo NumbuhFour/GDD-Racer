@@ -13,11 +13,11 @@
 		private var velocityR:Number = 0; //Rotational velocity.
 		private var accel:Number = 0; //Forward accelleration
 		
-		private var maxVel:Number = 20;
-		private var maxAccel:Number = 20;
+		private var maxVel:Number = 30;
+		private var maxAccel:Number = 8;
 		private var maxVelR:Number = 8.5;
 		
-		private var accelSpeed:Number = 0.6; //Speed acceleration increases
+		private var accelSpeed:Number = 0.9; //Speed acceleration increases
 		private var rotSpeed:Number = 0.65; //Speed rotation velocity increases;
 		
 		var leftPressed:Boolean = false;
@@ -28,7 +28,6 @@
 		public function Player() {
 			//addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
 			//addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
-			
 		}
 		
 		public function update():void {
@@ -36,8 +35,15 @@
 			//Set velX and velY based on forward acceleration
 			var rotRad:Number = rotation * (Math.PI/180);
 			var vel:Point = new Point(Math.cos(rotRad)*accel,Math.sin(rotRad)*accel);
-			velocityX = MathHelper.clamp(vel.x, -maxVel, maxVel);
-			velocityY = MathHelper.clamp(vel.y, -maxVel, maxVel)
+			
+			var space:Boolean = Keyboarder.keyIsDown(Keyboard.SPACE);
+			if(space){
+				velocityX = MathHelper.clamp(velocityX + vel.x, -maxVel, maxVel);
+				velocityY = MathHelper.clamp(velocityY + vel.y, -maxVel, maxVel);
+			}else{
+				velocityX = MathHelper.clamp(vel.x, -maxVel, maxVel);
+				velocityY = MathHelper.clamp(vel.y, -maxVel, maxVel)
+			}
 			
 			this.x += this.velocityX;
 			this.y += this.velocityY;
@@ -48,6 +54,9 @@
 			parent.y = -y + stage.stageHeight/2;
 			parent.rotation = -rotation;
 			*/
+			
+			velocityX *= 0.8;
+			velocityY *= 0.8;
 			
 			takeInput();
 		}
@@ -94,7 +103,7 @@
 			
 			
 			//Basing rotation speed on acceleration
-			var accelPerc:Number =  MathHelper.clamp(accel/(maxAccel/3),0,1);
+			var accelPerc:Number =  MathHelper.clamp(Math.abs(accel)/(maxAccel/3),0,1);
 			velocityR *= accelPerc;
 			
 			
