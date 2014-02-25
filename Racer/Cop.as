@@ -8,7 +8,7 @@
 		private var player:Player;
 		private var velocity:int = 0;
 		private var accel:int = 0;
-		private var MAX_VEL:int = 5;
+		private var MAX_VEL:int = 8;
 		private var vector:Point = new Point;
 		
 		public function Cop() {
@@ -28,22 +28,36 @@
 		}
 		
 		public function update(){
-			this.vector.x = Math.sin(rotation) * velocity;
-			this.vector.y = Math.cos(rotation) * velocity;
-			if (this.velocity < this.MAX_VEL)
-				this.velocity ++;
+			var radians:Number = rotation * Math.PI/180;
+			this.vector.x = Math.cos(radians) * velocity;
+			this.vector.y = Math.sin(radians) * velocity;
+			
 
 			var i:int = angleToPlayer();
-			trace(i + "    " + rotation);
-
-			if (i > rotation){
+			trace(this.vector + "   angle: " + i + "    rotation: " + rotation);
+			rotation += ((i - rotation) * (velocity/MAX_VEL))/20 * signOf(velocity);
+			
+			/*if (i > rotation + 5){
 				rotation += 1;
 			}
-			else if (i < rotation){
+			else if (i < rotation -5){
 				rotation -= 1;
+			}*/
+			if (Math.floor(i - rotation) > 15 && this.velocity > -5){
+				this.velocity --;
 			}
+			else if (this.velocity < this.MAX_VEL)
+				this.velocity ++;
+			
 			this.x += vector.x;
 			this.y += vector.y
+		}
+		
+		private function signOf(val:Number):int{
+			if (val >= 0)
+				return 1;
+			else
+				return -1;
 		}
 		
 		private function angleToPlayer():Number{
