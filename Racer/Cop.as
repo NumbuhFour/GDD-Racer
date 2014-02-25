@@ -34,6 +34,7 @@
 				this.velocity ++;
 			var i:Number = angleToPlayer();
 			trace(i);
+			//rotation = i;
 			if (i > rotation){
 				rotation += 5;
 			}
@@ -45,7 +46,7 @@
 		}
 		
 		private function angleToPlayer():Number{
-			var angle:Number = Math.atan2(this.player.y - this.y, this.x - this.player.x);
+			var angle:Number = Math.atan2(this.player.y - this.y, this.player.x - this.x);
 			angle *= (180 / Math.PI);
 			return angle;
 		}
