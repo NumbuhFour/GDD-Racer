@@ -1,7 +1,7 @@
 ﻿package  Racer{
 	
 	import flash.display.MovieClip;
-	
+	import com.as3toolkit.ui.Keyboarder;
 	
 	public class Main extends MovieClip {
 		
@@ -11,9 +11,8 @@
 		public function Main() {
 			gameScreen.init();
 			addChild(gameScreen);
+			new Keyboarder(this);
 		}
-		
-		
 	}
 	
 }

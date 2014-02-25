@@ -1,11 +1,25 @@
 ﻿package  Racer{
 	
 	import flash.display.MovieClip;
+	import flash.ui.Keyboard;
+	import com.as3toolkit.ui.Keyboarder;
+	import flash.geom.Point;
 	
 	public class Player extends MovieClip {
 
-		private var velocityX:int = 0;
-		private var velocityY:int = 0;
+		private var velocityX:Number = 0;
+		private var velocityY:Number = 0;
+		
+		private var velocityR:Number = 0; //Rotational velocity.
+		private var accel:Number = 0; //Forward accelleration
+		
+		private var maxVel:Number = 20;
+		private var maxAccel:Number = 20;
+		private var maxVelR:Number = 8.5;
+		
+		private var accelSpeed:Number = 0.6; //Speed acceleration increases
+		private var rotSpeed:Number = 0.65; //Speed rotation velocity increases;
+		
 		var leftPressed:Boolean = false;
 		var rightPressed:Boolean = false;
 		var upPressed:Boolean = false;
@@ -17,13 +31,68 @@
 			
 		}
 		
-		public function update(){
+		public function update():void {
+			
+			//Set velX and velY based on forward acceleration
+			var rotRad:Number = rotation * (Math.PI/180);
+			var vel:Point = new Point(Math.cos(rotRad)*accel,Math.sin(rotRad)*accel);
+			velocityX = MathHelper.clamp(vel.x, -maxVel, maxVel);
+			velocityY = MathHelper.clamp(vel.y, -maxVel, maxVel)
+			
 			this.x += this.velocityX;
 			this.y += this.velocityY;
+			this.rotation += this.velocityR;
+
+			/* Moving camera around player effect: Ready to implement, but need background things to see if it works.
+			parent.x = -x + stage.stageWidth/2;
+			parent.y = -y + stage.stageHeight/2;
+			parent.rotation = -rotation;
+			*/
 			
+			takeInput();
 		}
 		
-		private function input(){
+		private function takeInput():void {
+			var left:Boolean,right:Boolean,up:Boolean,down:Boolean,space:Boolean;
+			left = Keyboarder.keyIsDown(Keyboard.A);
+			right = Keyboarder.keyIsDown(Keyboard.D);
+			up = Keyboarder.keyIsDown(Keyboard.W);
+			down = Keyboarder.keyIsDown(Keyboard.S);
+			space = Keyboarder.keyIsDown(Keyboard.SPACE);
+			
+			if(left)
+			{
+				velocityR = MathHelper.clamp(velocityR - rotSpeed, -maxVelR, maxVelR);
+			}
+			if(right)
+			{
+				velocityR = MathHelper.clamp(velocityR + rotSpeed, -maxVelR, maxVelR);
+			}
+			
+			if(left == right){
+				velocityR *= 0.85;
+			}
+			
+			if(up)
+			{
+				accel = MathHelper.clamp(accel + accelSpeed, -maxAccel, maxAccel);
+			}
+			if(down)
+			{
+				accel = MathHelper.clamp(accel - accelSpeed, -maxAccel, maxAccel);
+			}
+			
+			if(up == down){
+				accel *= 0.95;
+			}
+			
+			if(space){ //Handbrake
+				//accel = MathHelper.clamp(accel, -maxAccel*0.4,maxAccel*0.4);
+				accel *= 0.89
+			}
+			
+			if(Math.abs(accel) < 0.5) accel = 0;
+			if(Math.abs(velocityR) < 0.5) velocityR = 0;
 			
 		}
 
