@@ -20,6 +20,10 @@
 		private var accelSpeed:Number = 0.6; //Speed acceleration increases
 		private var rotSpeed:Number = 0.65; //Speed rotation velocity increases;
 		
+		private var posX:Number = 0;
+		private var posY:Number = 0;
+		private var _rot:Number = 0;
+		
 		var leftPressed:Boolean = false;
 		var rightPressed:Boolean = false;
 		var upPressed:Boolean = false;
@@ -39,9 +43,9 @@
 			velocityX = MathHelper.clamp(vel.x, -maxVel, maxVel);
 			velocityY = MathHelper.clamp(vel.y, -maxVel, maxVel)
 			
-			this.x += this.velocityX;
-			this.y += this.velocityY;
-			this.rotation += this.velocityR;
+			this.posX += this.velocityX;
+			this.posY += this.velocityY;
+			this._rot += this.velocityR;
 
 			/* Moving camera around player effect: Ready to implement, but need background things to see if it works.
 			parent.x = -x + stage.stageWidth/2;
@@ -103,7 +107,13 @@
 			if(Math.abs(velocityR) < 0.5) velocityR = 0;
 			
 		}
-
+	
+		public function get velocity():Point { return new Point(velocityX, velocityY); }
+		public function set velocity(val:Point):void { velocityX = val.x; velocityY = val.y; }
+		
+		public function get position():Point { return new Point(posX,posY); }		
+		public function set position(val:Point):void { this.posX = val.x; this.posY = val.y; }
+		public function get rot():Number { return _rot; }
 	}
 	
 }
