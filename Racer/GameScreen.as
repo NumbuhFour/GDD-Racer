@@ -10,6 +10,7 @@
 		var buildingLayer:BuildingLayer;
 		var _player:Player;
 		var _backgroundClip:MovieClip;
+		var uiLayer:UILayer;
 		
 		public function GameScreen(backgroundClip:MovieClip) {
 			trace("BACKGROUND : " + backgroundClip);
@@ -27,6 +28,12 @@
 			carLayer.init();
 			//addChild(BuildingLayer);
 			
+			//uiLayer = new UILayer(this);
+			carLayer.init();
+			//buildingLayer.init();
+			//uiLayer.init();
+			//addChild(BuildingLayer);
+			//addChild(uiLayer);
 			addEventListener(Event.ENTER_FRAME, update);
 		}
 		
