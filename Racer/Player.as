@@ -106,4 +106,16 @@
 
 	}
 	
+	public function get velocity():Point
+	{
+		return new Point(velocityX, velocityY);
+	}
+	
+	public function set velocity(vel:Point):void
+	{
+		velocityX = vel.x;
+		velocityY = vel.y;
+	}
+	
+	
 }
