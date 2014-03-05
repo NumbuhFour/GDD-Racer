@@ -11,7 +11,7 @@
 			mapGrid = new Array(mapWidth,mapHeight);
 		}
 		
-		public function init(){
+		/*public function init(){
 			//populate the mapGrid based on chosen roads
 			var i:int,j:int;
 			for(i=0;i<mapWitdh;i++)
@@ -21,14 +21,14 @@
 					if (!(i==1||i==mapWidth-1||j==1||j==mapHeight-1)) //NOT cases in which we get null
 					{
 						//create a building
-						Building b = new Building();
+						var b:Building = new Building();
 						b.x=i*b.width;//TODO
 						b.y=j*b.height;//TODO
 						addChild(b);
 					}
 				}
 			}
-		}
+		}*/
 		
 		public function update(){
 

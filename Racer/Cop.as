@@ -37,13 +37,7 @@
 			trace(this.vector + "   angle: " + i + "    rotation: " + rotation);
 			rotation += ((i - rotation) * (velocity/MAX_VEL))/20 * signOf(velocity);
 			
-			/*if (i > rotation + 5){
-				rotation += 1;
-			}
-			else if (i < rotation -5){
-				rotation -= 1;
-			}*/
-			if (Math.floor(i - rotation) > 15 && this.velocity > -5){
+			if (Math.floor(i - rotation) > 90 && this.velocity > -5){
 				this.velocity --;
 			}
 			else if (this.velocity < this.MAX_VEL)
