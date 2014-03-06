@@ -29,7 +29,7 @@
 			//addChild(BuildingLayer);
 			
 			//uiLayer = new UILayer(this);
-			carLayer.init();
+			
 			//buildingLayer.init();
 			//uiLayer.init();
 			//addChild(BuildingLayer);
