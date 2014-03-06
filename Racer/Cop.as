@@ -17,8 +17,8 @@
 		
 		public function init(aPlayer:Player){
 			this.player = aPlayer;
-			this.x = 300;
-			this.y = 300;
+			this.x = 100;
+			this.y = 100;
 		}
 		
 		public function initWithPosition(aPlayer:Player, x:int, y:int){
@@ -35,7 +35,7 @@
 
 			var i:int = angleToPlayer();
 			trace(this.vector + "   angle: " + i + "    rotation: " + rotation);
-			rotation += ((i - rotation) * (velocity/MAX_VEL))/20 * signOf(velocity);
+			rotation -= ((i - rotation) * (velocity/MAX_VEL))/20 * signOf(velocity);
 			
 			if (Math.floor(i - rotation) > 90 && this.velocity > -5){
 				this.velocity --;
@@ -55,7 +55,7 @@
 		}
 		
 		private function angleToPlayer():Number{
-			var angle:Number = Math.atan2(this.player.y - this.y, this.player.x - this.x);
+			var angle:Number = Math.atan2(this.player.position.y - this.y, this.player.position.x - this.x);
 			angle *= (180 / Math.PI);
 			return angle;
 		}
