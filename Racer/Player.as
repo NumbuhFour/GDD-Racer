@@ -37,7 +37,7 @@
 		public function update():void {
 			
 			//Set velX and velY based on forward acceleration
-			var rotRad:Number = rotation * (Math.PI/180);
+			var rotRad:Number = _rot * (Math.PI/180);
 			var vel:Point = new Point(Math.cos(rotRad)*accel,Math.sin(rotRad)*accel);
 			
 			var space:Boolean = Keyboarder.keyIsDown(Keyboard.SPACE);
