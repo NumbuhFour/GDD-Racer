@@ -34,7 +34,7 @@
 			
 
 			var i:int = angleToPlayer();
-			trace(this.vector + "   angle: " + i + "    rotation: " + rotation);
+			//trace(this.vector + "   angle: " + i + "    rotation: " + rotation);
 			rotation += ((i - rotation) * (velocity/MAX_VEL))/20 * signOf(velocity);
 			
 			/*if (i > rotation + 5){

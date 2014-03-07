@@ -21,9 +21,9 @@
 					//if (!(i==1||i==_mapWidth-1||j==1||j==_mapHeight-1)) //NOT cases in which we get null
 					{
 						//create a building
-						var b:Building = new Building();
-						b.x=i*b.width;//TODO
-						b.y=j*b.height;//TODO
+						var b:Building = new Building(_gameScreen.world);
+						b.x=i*(b.width + 900);//TODO
+						b.y=j*(b.height + 900);//TODO
 						addChild(b);
 					}
 				}
@@ -31,7 +31,6 @@
 		}
 		
 		public function update(){
-
 
 		}
 
