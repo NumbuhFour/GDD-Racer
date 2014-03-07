@@ -11,7 +11,7 @@
 			_mapGrid = new Array(_mapWidth,_mapHeight);
 		}
 		
-		/*public function init(){
+		public function init(){
 			//populate the mapGrid based on chosen roads
 			var i:int,j:int;
 			for(i=0;i<_mapWidth;i++)
@@ -28,10 +28,10 @@
 					}
 				}
 			}
-		}*/
+		}
 		
 		public function update(){
-
+		
 
 		}
 

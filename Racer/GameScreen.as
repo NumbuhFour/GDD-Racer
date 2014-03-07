@@ -13,9 +13,9 @@
 		var _backgroundClip:MovieClip;
 		var uiLayer:UILayer;
 		
-		public function GameScreen(backgroundClip:MovieClip) {
-			trace("BACKGROUND : " + backgroundClip);
-			this._backgroundClip = backgroundClip;
+		public function GameScreen(/*backgroundClip:MovieClip*/) {
+			//trace("BACKGROUND : " + backgroundClip);
+			//this._backgroundClip = backgroundClip;
 		}
 		
 		public function init(){
@@ -52,13 +52,14 @@
 		
 		private function moveCamera(){
 			var camPos:Point = new Point(-_player.position.x + stage.stageWidth/2, -_player.position.y + stage.stageHeight/2);
-			_buildingLayer.x = carLayer.x = _backgroundClip.x = camPos.x;
-			_buildingLayer.y = carLayer.y = _backgroundClip.y = camPos.y;
+			_buildingLayer.x = carLayer.x = /*_backgroundClip.x = */camPos.x;
+			_buildingLayer.y = carLayer.y = /*_backgroundClip.y = */camPos.y;
 			this.x = stage.stageWidth/2;
 			this.y = stage.stageHeight/2;
 			_player.rotation = _player.rot;
 			this.rotation = -_player.rot-90;
 		}
+		
 		
 		public function get player():Player { return _player; }
 
