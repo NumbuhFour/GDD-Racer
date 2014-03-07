@@ -28,11 +28,16 @@
 			_player = new Player();
 			addChild(_player);
 			
-			carLayer.init();
+
 			
 			//uiLayer = new UILayer(this);
+
+			
+			//buildingLayer.init();
+
 			carLayer.init();
 			_buildingLayer.init();
+
 			//uiLayer.init();
 			//addChild(BuildingLayer);
 			//addChild(uiLayer);
