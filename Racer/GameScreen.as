@@ -22,7 +22,8 @@
 
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
-			addChild(_backgroundClip);
+			if(_backgroundClip)
+				addChild(_backgroundClip);
 			_translationContainer = new MovieClip();
 			_rotationContainer = new MovieClip();
 			_rotationContainer.addChild(_translationContainer);
