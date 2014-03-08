@@ -5,24 +5,22 @@
 	
 	public class Main extends MovieClip {
 		
-		var background:MovieClip;
-		var gameScreen:GameScreen;
+		var _background:MovieClip;
+		var _gameScreen:GameScreen;
 		
 		public function Main() {
 
-			//gameScreen = new GameScreen()
-			//this.removeChild(background_clip);
-			//gameScreen.addChild(background_clip);
-
-			background = new TestLevel();
-			gameScreen = new GameScreen(background)
-			/*if(background) {
-				this.removeChild(background);
-				gameScreen.addChild(background);
-			}*/
-
-			gameScreen.init();
-			addChild(gameScreen);
+			_background = new TestLevel();
+			_gameScreen = new GameScreen(_background)
+			//background = this.getChildByName("background_clip") as MovieClip;
+			
+			_gameScreen = new GameScreen(_background)
+			if(_background){
+				//this.removeChild(background);
+				_gameScreen.addChild(_background);
+			}
+			_gameScreen.init();
+			addChild(_gameScreen);
 			new Keyboarder(this);
 		}
 	}
