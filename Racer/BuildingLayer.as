@@ -22,8 +22,8 @@
 					{
 						//create a building
 						var b:Building = new Building(_gameScreen.world);
-						b.x=i*(b.width + 900);//TODO
-						b.y=j*(b.height + 900);//TODO
+						b.x=i*(b.width + 600) - 150;//TODO
+						b.y=j*(b.height + 600) - 150;//TODO
 						addChild(b);
 					}
 				}

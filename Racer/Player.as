@@ -12,14 +12,9 @@
 	import Box2D.Dynamics.b2Fixture;
 	import Box2D.Collision.Shapes.b2PolygonShape;
 	import Box2D.Common.Math.b2Vec2;
+	import Box2D.Common.Math.b2Math;
 	
 	public class Player extends MovieClip {
-
-		private var velocityX:Number = 0;
-		private var velocityY:Number = 0;
-		
-		private var velocityR:Number = 0; //Rotational velocity.
-		private var accel:Number = 0; //Forward accelleration
 		
 		private var maxVel:Number = 30;
 		private var maxAccel:Number = 8;
@@ -30,12 +25,7 @@
 		
 		private var _posX:Number = 0;
 		private var _posY:Number = 0;
-		private var _rot:Number = 0;
-		
-		var leftPressed:Boolean = false;
-		var rightPressed:Boolean = false;
-		var upPressed:Boolean = false;
-		var downPressed:Boolean = false;		
+		private var _rot:Number = 0;	
 		
 		private var _world:b2World;
 		
@@ -51,8 +41,8 @@
 			//addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
 			_bodyDef = new b2BodyDef();
 			_bodyDef.type = b2Body.b2_dynamicBody;
-			_bodyDef.linearDamping = 2;
-			_bodyDef.angularDamping = 2;
+			//_bodyDef.linearDamping = 5;
+			//_bodyDef.angularDamping = 10;
 			
 			_fixtureDef = new b2FixtureDef();
 			
@@ -63,39 +53,14 @@
 			_fixtureDef.shape = _shape;
 			_fixtureDef.density = 0.3;
 			_fixture = _body.CreateFixture(_fixtureDef);
+			
 		}
 		
 		public function update():void {
 			
-			//Set velX and velY based on forward acceleration
-			var rotRad:Number = rotation * (Math.PI/180);
-			var vel:Point = new Point(Math.cos(rotRad)*accel,Math.sin(rotRad)*accel);
-			
-			var space:Boolean = Keyboarder.keyIsDown(Keyboard.SPACE);
-			//if(space){
-				velocityX = MathHelper.clamp(velocityX + vel.x, -maxVel, maxVel);
-				velocityY = MathHelper.clamp(velocityY + vel.y, -maxVel, maxVel);
-			//}else{
-				//velocityX = MathHelper.clamp(vel.x, -maxVel, maxVel);
-				//velocityY = MathHelper.clamp(vel.y, -maxVel, maxVel)
-			//}
-			/*
-			this._posX += this.velocityX;
-			this._posY += this.velocityY;
-			this._rot += this.velocityR;
-			*/
 			this._posX = _body.GetPosition().x * GameScreen.SCALE;
 			this._posY = _body.GetPosition().y * GameScreen.SCALE;
 			this._rot  = _body.GetAngle()*(180/Math.PI);
-
-			/* Moving camera around player effect: Ready to implement, but need background things to see if it works.
-			parent.x = -x + stage.stageWidth/2;
-			parent.y = -y + stage.stageHeight/2;
-			parent.rotation = -rotation;
-			*/
-			
-			velocityX *= 0.8;
-			velocityY *= 0.8;
 			
 			takeInput();
 			trace(this);
@@ -109,14 +74,17 @@
 			down = Keyboarder.keyIsDown(Keyboard.S);
 			space = Keyboarder.keyIsDown(Keyboard.SPACE);
 			
+			var temp:Number = 1;
 			if(left)
 			{
-				_body.SetAngularVelocity(10);
-				velocityR = MathHelper.clamp(velocityR - rotSpeed, -maxVelR, maxVelR);
+				//_body.SetAngularVelocity(10);
+				//_body.ApplyTorque(1);
+				_body.SetPosition(new b2Vec2(_body.GetPosition().x - temp,_body.GetPosition().y));
 			}
 			if(right)
 			{
-				velocityR = MathHelper.clamp(velocityR + rotSpeed, -maxVelR, maxVelR);
+				//_body.ApplyTorque(-1);
+				_body.SetPosition(new b2Vec2(_body.GetPosition().x + temp,_body.GetPosition().y));
 			}
 			
 			if(!space)
@@ -124,43 +92,34 @@
 				
 				if(up)
 				{
-					_body.ApplyForce(new b2Vec2(1,0), _body.GetWorldCenter());
-					accel = MathHelper.clamp(accel + accelSpeed, -maxAccel, maxAccel);
+					//_body.ApplyImpulse(new b2Vec2(1,0), _body.GetWorldCenter());
+					_body.SetPosition(new b2Vec2(_body.GetPosition().x,_body.GetPosition().y - temp));
 				}
 				if(down)
 				{
-					_body.ApplyForce(new b2Vec2(-1,0), _body.GetWorldCenter());
-					accel = MathHelper.clamp(accel - accelSpeed, -maxAccel, maxAccel);
-				}
-				
-				//if(up == down)
-				{
-					accel *= 0.95;
-				}
-			
-				//if(left == right)
-				{
-					velocityR *= 0.86;
+					_body.SetPosition(new b2Vec2(_body.GetPosition().x,_body.GetPosition().y + temp));
+					//_body.ApplyImpulse(new b2Vec2(-1,0), _body.GetWorldCenter());
 				}
 			}else{ //Handbreak
-				velocityR *= 0.92;
-				accel *= 0.96;
+				
 			}
 			
-			
-			//Basing rotation speed on acceleration
-			var accelPerc:Number =  MathHelper.clamp(Math.abs(accel)/(maxAccel/3),0,1);
-			velocityR *= accelPerc;
-			
-			
-			// Drifing float cleanup
-			if(Math.abs(accel) < 0.5) accel = 0;
-			if(Math.abs(velocityR) < 0.5) velocityR = 0;
-			
+		}
+		
+		public function getLateralVelocity():b2Vec2 {
+			var currentRightNormal:b2Vec2 = _body.GetWorldVector(new b2Vec2(0,1));
+			currentRightNormal.Multiply(b2Math.Dot(currentRightNormal,_body.GetLinearVelocity()))
+			return currentRightNormal;
+		}
+		
+		private function applyFriction():void {
+			var impulse:b2Vec2 = getLateralVelocity().GetNegative();
+			impulse.Multiply(_body.GetMass());
+			_body.ApplyImpulse(impulse, _body.GetWorldCenter());
 		}
 	
-		public function get velocity():Point { return new Point(velocityX, velocityY); }
-		public function set velocity(val:Point):void { velocityX = val.x; velocityY = val.y; }
+		public function get velocity():Point { return new Point(_body.GetLinearVelocity().x, _body.GetLinearVelocity().y); }
+		public function set velocity(val:Point):void { _body.SetLinearVelocity(new b2Vec2(val.x,val.y)); }
 		
 		public function get position():Point { return new Point(_posX,_posY); }		
 		public function set position(val:Point):void { this._posX = val.x; this._posY = val.y; }
@@ -168,7 +127,7 @@
 		
 		public override function toString():String 
 		{
-			return "[Player] physpos=" + _body.GetPosition().x +"," + _body.GetPosition().y + " physvel=" + _body.GetLinearVelocity().x + "," + _body.GetLinearVelocity().y + " physr=" + _body.GetAngle();
+			return "[Player]: \nphyspos=[" + _body.GetPosition().x +", " + _body.GetPosition().y + "] \nphysvel=[" + _body.GetLinearVelocity().x + ", " + _body.GetLinearVelocity().y + "] \nphysrot=" + _body.GetAngle() + ", " + _body.GetAngularVelocity();
 		}
 	}
 	

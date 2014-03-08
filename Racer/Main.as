@@ -6,14 +6,15 @@
 	public class Main extends MovieClip {
 		
 		
-		//var background_clip:MovieClip;
+		var background:MovieClip;
 		var gameScreen:GameScreen;
 		
 		public function Main() {
-			gameScreen = new GameScreen(background_clip)
-			if(background_clip){
-				this.removeChild(background_clip);
-				gameScreen.addChild(background_clip);
+			background = this.getChildByName("background_clip") as MovieClip;
+			gameScreen = new GameScreen(background)
+			if(background){
+				this.removeChild(background);
+				gameScreen.addChild(background);
 			}
 			gameScreen.init();
 			addChild(gameScreen);

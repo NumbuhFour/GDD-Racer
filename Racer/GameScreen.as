@@ -29,7 +29,6 @@
 		private var _stepTimer:Timer;
 		
 		public function GameScreen(backgroundClip:MovieClip) {
-			trace("BACKGROUND : " + backgroundClip);
 			this._backgroundClip = backgroundClip;
 			_translationContainer = new MovieClip();
 			_rotationContainer = new MovieClip();
@@ -62,7 +61,7 @@
 		}
 		
 		private function update(event:Event){
-			//_world.Step(_stepTime,10,10);
+			_world.Step(_stepTime,10,10);
 			player.update();
 			carLayer.update();
 			moveCamera();
