@@ -10,16 +10,16 @@
 		
 		public function Main() {
 
-			gameScreen = new GameScreen()
+			//gameScreen = new GameScreen()
 			//this.removeChild(background_clip);
 			//gameScreen.addChild(background_clip);
 
-			background = this.getChildByName("background_clip") as MovieClip;
+			background = new TestLevel();
 			gameScreen = new GameScreen(background)
-			if(background) {
+			/*if(background) {
 				this.removeChild(background);
 				gameScreen.addChild(background);
-			}
+			}*/
 
 			gameScreen.init();
 			addChild(gameScreen);
