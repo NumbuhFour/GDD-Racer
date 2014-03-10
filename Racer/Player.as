@@ -13,6 +13,12 @@
 	import Box2D.Collision.Shapes.b2PolygonShape;
 	import Box2D.Common.Math.b2Vec2;
 	import Box2D.Common.Math.b2Math;
+	import flash.utils.Dictionary;
+	import Box2D.Dynamics.Joints.b2RevoluteJoint;
+	import Box2D.Dynamics.Joints.b2RevoluteJointDef;
+	import Box2D.Dynamics.Joints.b2PrismaticJointDef;
+	import Box2D.Dynamics.b2DebugDraw;
+	import flash.display.Sprite;
 	
 	public class Player extends MovieClip {
 		
@@ -35,14 +41,16 @@
 		private var _fixtureDef:b2FixtureDef;
 		private var _fixture:b2Fixture;
 		
+		private var _wheels:Dictionary;
+		private var _joints:Dictionary;
+		
 		public function Player(world:b2World) {
 			this._world = world;
-			//addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
-			//addEventListener(KeyboardEvent.KEY_DOWN, keyDownHandler);
+			
+			
 			_bodyDef = new b2BodyDef();
 			_bodyDef.type = b2Body.b2_dynamicBody;
-			//_bodyDef.linearDamping = 5;
-			//_bodyDef.angularDamping = 10;
+			
 			_fixtureDef = new b2FixtureDef();
 			
 			_body = _world.CreateBody(_bodyDef);			
@@ -53,6 +61,34 @@
 			_fixtureDef.density = 0.3;
 			_fixture = _body.CreateFixture(_fixtureDef);
 			
+			
+			_wheels = new Dictionary();
+			_joints = new Dictionary();
+			var fWheel:Wheel = new Wheel(world,this.width/6, this.height/6);
+			var bWheel:Wheel = new Wheel(world,this.width/6, this.height/6);
+			
+			fWheel.setPosition(this.x+this.width/2, this.y);
+			bWheel.setPosition(this.x-this.width/2, this.y);
+			
+			_wheels[0] = fWheel;
+			_wheels[1] = bWheel;
+			
+			//Joints
+			var frontJointDef:b2RevoluteJointDef = new b2RevoluteJointDef();
+			frontJointDef.Initialize(_body,fWheel.body, fWheel.body.GetWorldCenter());
+			frontJointDef.enableMotor = true;
+			frontJointDef.maxMotorTorque = 100;
+			
+			var backJointDef:b2RevoluteJointDef = new b2RevoluteJointDef();
+			backJointDef.Initialize(_body,bWheel.body, bWheel.body.GetWorldCenter());
+			backJointDef.enableMotor = true;
+			backJointDef.maxMotorTorque = 100;
+			
+			var fJoint:b2RevoluteJoint = _world.CreateJoint(frontJointDef) as b2RevoluteJoint;
+			var bJoint:b2RevoluteJoint = _world.CreateJoint(frontJointDef) as b2RevoluteJoint;
+			
+			_joints[0] = fJoint;
+			_joints[1] = bJoint;
 		}
 		
 		public function update():void {
@@ -61,48 +97,48 @@
 			this._posY = _body.GetPosition().y * GameScreen.SCALE;
 			this._rot  = _body.GetAngle()*(180/Math.PI);
 			
-			takeInput();
-			trace(this);
+			applyFriction();
+			turnDrive();
+			frontDrive();
+			//trace(this);
 		}
 		
-		private function takeInput():void {
-			var left:Boolean,right:Boolean,up:Boolean,down:Boolean,space:Boolean;
-			left = Keyboarder.keyIsDown(Keyboard.A);
-			right = Keyboarder.keyIsDown(Keyboard.D);
-			up = Keyboarder.keyIsDown(Keyboard.W);
-			down = Keyboarder.keyIsDown(Keyboard.S);
-			space = Keyboarder.keyIsDown(Keyboard.SPACE);
+		private function frontDrive(){
+			var up:Boolean = Keyboarder.keyIsDown(Keyboard.W);
+			var down:Boolean = Keyboarder.keyIsDown(Keyboard.S);
 			
-			var temp:Number = 1;
-			if(left)
-			{
-				//_body.SetAngularVelocity(10);
-				//_body.ApplyTorque(1);
-				_body.SetPosition(new b2Vec2(_body.GetPosition().x - temp,_body.GetPosition().y));
-			}
-			if(right)
-			{
-				//_body.ApplyTorque(-1);
-				_body.SetPosition(new b2Vec2(_body.GetPosition().x + temp,_body.GetPosition().y));
-			}
-			
-			if(!space)
-			{	
+			if(up || down) {
+				var desiredSpeed:Number = 0;
+				if(up) desiredSpeed = 16;
+				else if(down) desiredSpeed = -12;
 				
-				if(up)
-				{
-					//_body.ApplyImpulse(new b2Vec2(1,0), _body.GetWorldCenter());
-					_body.SetPosition(new b2Vec2(_body.GetPosition().x,_body.GetPosition().y - temp));
-				}
-				if(down)
-				{
-					_body.SetPosition(new b2Vec2(_body.GetPosition().x,_body.GetPosition().y + temp));
-					//_body.ApplyImpulse(new b2Vec2(-1,0), _body.GetWorldCenter());
-				}
-			}else{ //Handbreak
+				var currentForwardNormal:b2Vec2 = _body.GetWorldVector(new b2Vec2(1,0));
+				var currentSpeed:Number = b2Math.Dot(getForwardVelocity(), currentForwardNormal);
 				
+				var force:Number = 0;
+				
+				if(desiredSpeed > currentSpeed)
+					force = 100;
+				else if (desiredSpeed < currentSpeed)
+					force = -100;
+				else
+					return;
+				currentForwardNormal.Multiply(force);
+				_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
 			}
+		}
+		
+		private function turnDrive(){
+			var left:Boolean = Keyboarder.keyIsDown(Keyboard.A);
+			var right:Boolean = Keyboarder.keyIsDown(Keyboard.D);
 			
+			if(left || right){
+				var desiredTorque:Number = 0;
+				if(left) desiredTorque = -11;
+				else if(right) desiredTorque = 11;
+				
+				_body.ApplyTorque(desiredTorque);
+			}
 		}
 		
 		public function getLateralVelocity():b2Vec2 {
@@ -111,10 +147,24 @@
 			return currentRightNormal;
 		}
 		
+		public function getForwardVelocity():b2Vec2 {
+			var currentFrontNormal:b2Vec2 = _body.GetWorldVector(new b2Vec2(1,0));
+			currentFrontNormal.Multiply(b2Math.Dot(currentFrontNormal,_body.GetLinearVelocity()))
+			return currentFrontNormal;
+		}
+		
 		private function applyFriction():void {
 			var impulse:b2Vec2 = getLateralVelocity().GetNegative();
 			impulse.Multiply(_body.GetMass());
 			_body.ApplyImpulse(impulse, _body.GetWorldCenter());
+			_body.ApplyAngularImpulse(0.1 * _body.GetInertia() * - _body.GetAngularVelocity());
+			
+			//Forward drag
+			var currentForwardNormal:b2Vec2 = getForwardVelocity();
+			var currentForwardSpeed:Number = currentForwardNormal.Normalize();
+			var dragForceMagnitude = -1 * currentForwardSpeed;
+			currentForwardNormal.Multiply(dragForceMagnitude);
+			_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
 		}
 	
 		public function get velocity():Point { return new Point(_body.GetLinearVelocity().x, _body.GetLinearVelocity().y); }

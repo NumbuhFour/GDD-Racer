@@ -11,6 +11,7 @@
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
 	import flash.display.DisplayObject;
+	import Box2D.Dynamics.b2DebugDraw;
 	
 	public class GameScreen extends Sprite{
 		public static const FRICTION:Number = 10;
@@ -38,6 +39,14 @@
 		
 		public function init(){
 			_world = new b2World(new b2Vec2(),true);
+			var dbg:b2DebugDraw = new b2DebugDraw();
+			dbg.SetSprite(new Sprite());
+			dbg.SetDrawScale(GameScreen.SCALE);
+			dbg.SetFillAlpha(0.3);
+			dbg.SetLineThickness(1.0);
+			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit);
+			_world.SetDebugDraw(dbg);
+			addChild(dbg.GetSprite());
 			
 			_buildingLayer = new BuildingLayer(this);
 			addChild(_buildingLayer);
@@ -58,10 +67,12 @@
 			_stepTimer = new Timer(_stepTime);
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
+			
 		}
 		
 		private function update(event:Event){
 			_world.Step(_stepTime,10,10);
+			_world.ClearForces();
 			_player.update();
 			_carLayer.update();
 			moveCamera();
