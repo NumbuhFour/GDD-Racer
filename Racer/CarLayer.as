@@ -4,6 +4,7 @@
 	
 	public class CarLayer extends AbstractGameLayer{
 
+		var dispatch:Dispatch = new Dispatch();
 		var cops:Vector.<Cop>;
 		
 		public function CarLayer(aGameScreen:GameScreen) {
