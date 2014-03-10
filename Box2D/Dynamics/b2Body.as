@@ -1361,6 +1361,16 @@ public class b2Body
 		static public var b2_dynamicBody:uint = 2;
 	//};
 	
+	
+	
+	
+	/** Added due to lack of porting **/
+	public function ApplyAngularImpulse(impulse:Number):void {
+		if(!this.IsAwake()){
+			this.SetAwake(true);
+		}
+		this.m_angularVelocity += this.m_invI * impulse;
+	}
 };
 
 }

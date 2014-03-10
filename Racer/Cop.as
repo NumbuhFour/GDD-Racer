@@ -78,7 +78,7 @@
 					frontRect.intersects(player.getRect(this)) || 
 					leftRect.intersects(player.getRect(this)))){
 					for (var i:int = 0; i < gameScreen.background.numChildren; i++){
-						var rect:Rectangle = gameScreen.background.getChildAtIndex(i).getRect(parent.parent);
+						var rect:Rectangle = gameScreen.background.getChildAt(i).getRect(parent.parent);
 						if (rect.intersects(rightRect) && !rect.intersects(leftRect)){
 							rotation += 10;
 							velocity --;

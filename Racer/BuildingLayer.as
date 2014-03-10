@@ -22,16 +22,16 @@
 					{
 						//create a building
 						var b:Building = new Building();
-						b.x=i*b.width;//TODO
-						b.y=j*b.height;//TODO
+						b.x=i*(b.width + 600) - 150;//TODO
+						b.y=j*(b.height + 600) - 150;//TODO
 						addChild(b);
+						b.world = _gameScreen.world;
 					}
 				}
 			}
 		}
 		
 		public function update(){
-		
 
 		}
 

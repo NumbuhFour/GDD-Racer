@@ -5,9 +5,18 @@
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.geom.Point;
+	import Box2D.Collision.*;
+	import Box2D.Dynamics.b2World;
+	import Box2D.Common.Math.b2Vec2;
+	import flash.utils.Timer;
+	import flash.events.TimerEvent;
+	import flash.display.DisplayObject;
+	import Box2D.Dynamics.b2DebugDraw;
 	
 	public class GameScreen extends Sprite{
-
+		public static const FRICTION:Number = 10;
+		public static const SCALE:Number = 17;
+		
 		var _carLayer:CarLayer;
 		var _buildingLayer:BuildingLayer;
 		var _player:Player;
@@ -15,14 +24,14 @@
 		var _uiLayer:UILayer;
 		var _translationContainer:MovieClip;
 		var _rotationContainer:MovieClip;
-
-		/*public function GameScreen(backgroundClip:MovieClip) {
-			trace("BACKGROUND : " + backgroundClip);
-			this._backgroundClip = backgroundClip;*/
-
+		
+		private var _world:b2World;
+		private var _stepTime:Number = 0.042;
+		private var _stepTimer:Timer;
+		
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
-
+			
 			_translationContainer = new MovieClip();
 			_rotationContainer = new MovieClip();
 			_rotationContainer.addChild(_translationContainer);
@@ -31,40 +40,48 @@
 		}
 		
 		public function init(){
-			_buildingLayer = new BuildingLayer(this);
-			addChild(_buildingLayer);
+			_world = new b2World(new b2Vec2(),true);
+			var dbg:b2DebugDraw = new b2DebugDraw();
+			dbg.SetSprite(new Sprite());
+			dbg.SetDrawScale(GameScreen.SCALE);
+			dbg.SetFillAlpha(0.3);
+			dbg.SetLineThickness(1.0);
+			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit);
+			_world.SetDebugDraw(dbg);
+			addChild(dbg.GetSprite());
+			
+			//_buildingLayer = new BuildingLayer(this);
+			//addChild(_buildingLayer);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
 
 			_player = new Player();
 			super.addChild(_player);
+			_player.world = _world;
 			
+			//uiLayer = new UILayer(this);
 			_carLayer.init();
+			//_buildingLayer.init();
+			//uiLayer.init();
+			//addChild(BuildingLayer);
+			//addChild(uiLayer);
+			//addEventListener(Event.ENTER_FRAME, update);
+			_stepTimer = new Timer(_stepTime);
+			_stepTimer.addEventListener(TimerEvent.TIMER, update);
+			_stepTimer.start();
 			
-			addEventListener(Event.ENTER_FRAME, update);
 		}
 		
 		private function update(event:Event){
+			_world.Step(_stepTime,10,10);
+			_world.ClearForces();
 			_player.update();
 			_carLayer.update();
 			moveCamera();
 		}
 		
 		private function moveCamera(){
-
-			var camPos:Point = new Point(-_player.position.x + stage.stageWidth/2, -_player.position.y + stage.stageHeight/2);
-			_buildingLayer.x = _carLayer.x = _backgroundClip.x = camPos.x;
-			_buildingLayer.y = _carLayer.y = _backgroundClip.y = camPos.y;
-
-			/*var camPos:Point = new Point(-_player.position.x + stage.stageWidth/2, -_player.position.y + stage.stageHeight/2);
-			_buildingLayer.x = carLayer.x = _backgroundClip.x = camPos.x;
-			_buildingLayer.y = carLayer.y = _backgroundClip.y = camPos.y;
-
-			this.x = stage.stageWidth/2;
-			this.y = stage.stageHeight/2;
-			_player.rotation = _player.rot;
-			this.rotation = -_player.rot-90;*/
 			
 			_translationContainer.x = -_player.position.x;
 			_translationContainer.y = -_player.position.y;
@@ -72,6 +89,7 @@
 			this.y = stage.stageHeight/2;
 			_rotationContainer.rotation = -_player.rot - 90;
 			_player.rotation = -90;
+			
 			//_player.x = _player.position.x;
 			//_player.y = _player.position.y;
 			//_player.rotation = _player.rot;
@@ -80,12 +98,14 @@
 		
 		public function get player():Player { return _player; }
 		
-		public function get backround():MovieClip { return _backgroundClip; }
+		public function get background():MovieClip { return _backgroundClip; }
+		
+		public function get world():b2World { return _world; }
+		public function get stepTime():Number { return _stepTime; }
 	
 		public override function addChild(child:DisplayObject):DisplayObject{
 			return this._translationContainer.addChild(child);
 		}
-
 	}
 	
 }
