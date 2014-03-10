@@ -15,10 +15,7 @@
 			//background = this.getChildByName("background_clip") as MovieClip;
 			
 			_gameScreen = new GameScreen(_background)
-			if(_background){
-				//this.removeChild(background);
-				_gameScreen.addChild(_background);
-			}
+			
 			_gameScreen.init();
 			addChild(_gameScreen);
 			new Keyboarder(this);

@@ -31,10 +31,12 @@
 		
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
+			
 			_translationContainer = new MovieClip();
 			_rotationContainer = new MovieClip();
 			_rotationContainer.addChild(_translationContainer);
 			super.addChild(_rotationContainer);
+			addChild(_backgroundClip);
 		}
 		
 		public function init(){
@@ -94,6 +96,8 @@
 		
 		
 		public function get player():Player { return _player; }
+		
+		public function get background():MovieClip { return _backgroundClip; }
 		
 		public function get world():b2World { return _world; }
 		public function get stepTime():Number { return _stepTime; }
