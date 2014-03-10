@@ -23,7 +23,7 @@
 		}
 		
 		private function initCops(){
-			var cop:Cop = new Cop();
+			var cop:Cop = new Cop(this._gameScreen);
 			cop.init(_gameScreen.player);
 			cops.push(cop);
 			addChild(cop);

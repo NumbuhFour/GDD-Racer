@@ -22,12 +22,12 @@
 
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
-			addChild(_backgroundClip);
+			
 			_translationContainer = new MovieClip();
 			_rotationContainer = new MovieClip();
 			_rotationContainer.addChild(_translationContainer);
 			super.addChild(_rotationContainer);
-
+			addChild(_backgroundClip);
 		}
 		
 		public function init(){
@@ -79,6 +79,8 @@
 		
 		
 		public function get player():Player { return _player; }
+		
+		public function get backround():MovieClip { return _backgroundClip; }
 	
 		public override function addChild(child:DisplayObject):DisplayObject{
 			return this._translationContainer.addChild(child);
