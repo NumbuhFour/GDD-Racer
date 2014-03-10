@@ -20,7 +20,7 @@
 	import Box2D.Dynamics.b2DebugDraw;
 	import flash.display.Sprite;
 	
-	public class Player extends MovieClip {
+	public class Player extends PhysicalClip {
 		
 		private var maxVel:Number = 30;
 		private var maxAccel:Number = 8;
@@ -33,21 +33,13 @@
 		private var _posY:Number = 0;
 		private var _rot:Number = 0;	
 		
-		private var _world:b2World;
-		
-		private var _bodyDef:b2BodyDef;
-		private var _body:b2Body;
-		private var _shape:b2Shape;
-		private var _fixtureDef:b2FixtureDef;
-		private var _fixture:b2Fixture;
-		
 		private var _wheels:Dictionary;
 		private var _joints:Dictionary;
 		
-		public function Player(world:b2World) {
-			this._world = world;
-			
-			
+		public function Player() {
+		}
+		
+		protected override function setupPhys() {
 			_bodyDef = new b2BodyDef();
 			_bodyDef.type = b2Body.b2_dynamicBody;
 			
@@ -64,8 +56,8 @@
 			
 			_wheels = new Dictionary();
 			_joints = new Dictionary();
-			var fWheel:Wheel = new Wheel(world,this.width/6, this.height/6);
-			var bWheel:Wheel = new Wheel(world,this.width/6, this.height/6);
+			var fWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			var bWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
 			
 			fWheel.setPosition(this.x+this.width/2, this.y);
 			bWheel.setPosition(this.x-this.width/2, this.y);

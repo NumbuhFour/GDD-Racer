@@ -11,17 +11,21 @@
 	import Box2D.Common.Math.b2Vec2;
 	
 	
-	public class Building extends MovieClip {
+	public class Building extends PhysicalClip {
 		
-		private var _world:b2World;
+		public function Building() {
+		}
 		
-		private var _bodyDef:b2BodyDef;
-		private var _body:b2Body;
-		private var _shape:b2Shape;
-		private var _fixtureDef:b2FixtureDef;
-		private var _fixture:b2Fixture;
-		public function Building(world:b2World) {
-			this._world = world;
+		public override function set x(value:Number):void {
+			_body.SetPosition(new b2Vec2(value/GameScreen.SCALE, _body.GetPosition().y));
+			super.x = value;
+		}
+		public override function set y(value:Number):void {
+			_body.SetPosition(new b2Vec2(_body.GetPosition().x,value/GameScreen.SCALE));
+			super.y = value;
+		}
+		
+		protected override function setupPhys(){
 			
 			_bodyDef = new b2BodyDef();
 			_fixtureDef = new b2FixtureDef();
@@ -32,15 +36,8 @@
 			(_shape as b2PolygonShape).SetAsBox(this.width / 2 / GameScreen.SCALE, this.height / 2 / GameScreen.SCALE);
 			_fixtureDef.shape = _shape;
 			_fixture = _body.CreateFixture(_fixtureDef);
-		}
-		
-		public override function set x(value:Number):void {
-			_body.SetPosition(new b2Vec2(value/GameScreen.SCALE, _body.GetPosition().y));
-			super.x = value;
-		}
-		public override function set y(value:Number):void {
-			_body.SetPosition(new b2Vec2(_body.GetPosition().x,value/GameScreen.SCALE));
-			super.y = value;
+			
+			_body.SetPosition(new b2Vec2(x/GameScreen.SCALE,y/GameScreen.SCALE));
 		}
 	}
 	

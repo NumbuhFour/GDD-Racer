@@ -50,18 +50,19 @@
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
 			
-			_buildingLayer = new BuildingLayer(this);
-			addChild(_buildingLayer);
+			//_buildingLayer = new BuildingLayer(this);
+			//addChild(_buildingLayer);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
 
-			_player = new Player(_world);
+			_player = new Player();
 			super.addChild(_player);
+			_player.world = _world;
 			
 			//uiLayer = new UILayer(this);
 			_carLayer.init();
-			_buildingLayer.init();
+			//_buildingLayer.init();
 			//uiLayer.init();
 			//addChild(BuildingLayer);
 			//addChild(uiLayer);

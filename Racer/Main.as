@@ -5,7 +5,7 @@
 	
 	public class Main extends MovieClip {
 		
-		var _background:MovieClip;
+		var _background:Level;
 		var _gameScreen:GameScreen;
 		
 		public function Main() {
@@ -17,6 +17,8 @@
 			_gameScreen = new GameScreen(_background)
 			
 			_gameScreen.init();
+			_background.gameScreen = _gameScreen;
+			
 			addChild(_gameScreen);
 			new Keyboarder(this);
 		}

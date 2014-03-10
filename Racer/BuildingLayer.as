@@ -21,10 +21,11 @@
 					//if (!(i==1||i==_mapWidth-1||j==1||j==_mapHeight-1)) //NOT cases in which we get null
 					{
 						//create a building
-						var b:Building = new Building(_gameScreen.world);
+						var b:Building = new Building();
 						b.x=i*(b.width + 600) - 150;//TODO
 						b.y=j*(b.height + 600) - 150;//TODO
 						addChild(b);
+						b.world = _gameScreen.world;
 					}
 				}
 			}
