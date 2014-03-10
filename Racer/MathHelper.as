@@ -3,6 +3,9 @@
 	
 	public class MathHelper {
 		
+		public static const DEGTORAD:Number = (Math.PI/180);
+		public static const RADTODEG:Number = (180/Math.PI);
+		
 		public static function clamp(val:Number, min:Number, max:Number):Number{
 			return Math.max(Math.min(val,max),min)
 		}
