@@ -1,5 +1,7 @@
 ﻿package Racer {
 	import flash.utils.Dictionary;
+	import flash.xml.XMLNode;
+	import flash.xml.XMLDocument;
 	
 	public class Dispatch {
 	
@@ -12,10 +14,14 @@
 		}
 		
 		public function createNodes(nodes:Dictionary){
-			for each (var list:XMLList in xml.levels[0].childNodes){
-				this.nodes[list.id] = nodes[list.id];
-				for (var i:int = 0; i < list.length; i++){
-					this.nodes[list.id].addAdjacentNode(list[i].text());
+			var xmlList:XMLList = xml.levels.testLevel.children();
+			trace(xmlList);
+			for each (var node:XMLList in xmlList){
+				this.nodes[node.attribute('id')] = nodes[node.attribute('id')];
+				trace(node.attribute('id'));
+				for (var i:int = 0; i < xmlList.length; i++){
+					this.nodes[node.attribute('id')].addAdjacentNode(node[i].text());
+					
 				}
 			}
 		}

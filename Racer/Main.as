@@ -12,6 +12,7 @@
 		var _gameScreen:GameScreen;
 		
 		public function Main() {
+			new Keyboarder(this);			
 			instance = this;
 			win.visible = false;
 
@@ -19,10 +20,10 @@
 			_gameScreen = new GameScreen(_background)
 			//background = this.getChildByName("background_clip") as MovieClip;
 			
-			_gameScreen.init();
+			//_gameScreen.init();
 			
 			addChild(_gameScreen);
-			new Keyboarder(this);
+			
 			
 			
 		}

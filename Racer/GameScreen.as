@@ -6,6 +6,7 @@
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.geom.Point;
+	import flash.utils.Dictionary;
 	import Box2D.Collision.*;
 	import Box2D.Dynamics.b2World;
 	import Box2D.Common.Math.b2Vec2;
@@ -76,9 +77,11 @@
 			
 			var dict:Dictionary = new Dictionary();
 			var j:int = 0;
-			for (var i:int = 0; i < background.numChildren; i++)
+			for (var i:int = 0; i < background.numChildren; i++){
 				if(background.getChildAt(i) is Node)
-					dict[background.getChildAt(i).name] = background.getChildAt(i);			
+					dict[background.getChildAt(i).name] = background.getChildAt(i);	
+			}
+			
 			_carLayer.init(dict); 
 			
 			_stepTimer = new Timer(_stepTime);
