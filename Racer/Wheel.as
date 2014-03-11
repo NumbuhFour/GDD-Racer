@@ -76,21 +76,32 @@
 		}
 		
 		
-		public function applyFriction():void {
+		public function applyFriction(lateralMult:Number = 0.3):void {
 			var impulse:b2Vec2 = getLateralVelocity().GetNegative();
 
 			//Skidding
-			//if ( impulse.Length() > this._maxLateral )
-			//	impulse.Multiply(this._maxLateral / impulse.Length());
+			if ( impulse.Length() > this._maxLateral )
+				impulse.Multiply(this._maxLateral / impulse.Length());
 			
 			impulse.Multiply(_body.GetMass());
-			_body.ApplyImpulse(impulse, _body.GetWorldCenter());
+			var mult:b2Vec2 = impulse.Copy();
+			mult.Multiply(lateralMult);
+			_body.ApplyImpulse(mult, _body.GetWorldCenter());
 			_body.ApplyAngularImpulse(0.3 * _body.GetInertia() * - _body.GetAngularVelocity());
 			
 			//Forward drag
 			var currentForwardNormal:b2Vec2 = getForwardVelocity();
 			var currentForwardSpeed:Number = currentForwardNormal.Normalize();
 			var dragForceMagnitude = -1 * currentForwardSpeed;
+			currentForwardNormal.Multiply(dragForceMagnitude);
+			_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
+		}
+		
+		public function eBreak():void {
+			//Forward drag
+			var currentForwardNormal:b2Vec2 = getForwardVelocity();
+			var currentForwardSpeed:Number = currentForwardNormal.Normalize();
+			var dragForceMagnitude = -2.1 * currentForwardSpeed;
 			currentForwardNormal.Multiply(dragForceMagnitude);
 			_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
 		}

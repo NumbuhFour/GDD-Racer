@@ -82,7 +82,7 @@
 			dbg.SetDrawScale(GameScreen.SCALE);
 			dbg.SetFillAlpha(0.3);
 			dbg.SetLineThickness(1.0);
-			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit );
+			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_aabbBit);
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
 		}
@@ -171,6 +171,8 @@
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
 				win();
+			}else if(o1 is Player || o2 is Player){
+				_player.takeDamage(e.point);
 			}
 		}
 		

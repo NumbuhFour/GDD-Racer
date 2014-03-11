@@ -20,6 +20,9 @@
 	import Box2D.Dynamics.b2DebugDraw;
 	import flash.display.Sprite;
 	import Box2D.Dynamics.Joints.b2Joint;
+	import Box2D.Dynamics.Contacts.b2Contact;
+	import Box2D.Collision.b2ManifoldPoint;
+	import Box2D.Collision.b2Manifold;
 	
 	public class Player extends PhysicalClip {
 		
@@ -30,6 +33,8 @@
 		private var _wheels:Dictionary;
 		private var _flJoint:b2RevoluteJoint;
 		private var _frJoint:b2RevoluteJoint;
+		
+		private var _totalDamage:Number = 0;
 		
 		public function Player() {
 		}
@@ -131,14 +136,21 @@
 			this._posY = _body.GetPosition().y * GameScreen.SCALE;
 			this._rot  = _body.GetAngle()*(180/Math.PI);
 			
+			var space:Boolean = Keyboarder.keyIsDown(Keyboard.SPACE);
+			
 			for(var i:int = 0; i < 4; i++){
-				(_wheels[i] as Wheel).applyFriction();
+				(_wheels[i] as Wheel).applyFriction(!space ? 1:i > 2 ? 0.21:0.02);
 				if(i < 2){
 					(_wheels[i] as Wheel).frontDrive();
 					//(_wheels[i] as Wheel).turnDrive();
 				}
 			}
 			turnDrive();
+			
+			if(Keyboarder.keyIsDown(Keyboard.SPACE)){ //Emergency Break
+				(_wheels[2] as Wheel).eBreak();
+				(_wheels[3] as Wheel).eBreak();
+			}
 			
 			//applyFriction();
 			//turnDrive();
@@ -176,6 +188,37 @@
 				var dir:Number = 1;
 				if(this.rotation%90 < tol) dir = -1;
 				_body.SetAngle(_body.GetAngle() + dir*2*MathHelper.DEGTORAD*(this.getForwardVelocity().Length()/10));
+			}
+		}
+		
+		public function takeDamage(hit:b2Contact){
+			var other:b2Body;
+
+			if(hit.GetFixtureA().GetBody() == this._body) other = hit.GetFixtureB().GetBody();
+			if(hit.GetFixtureB().GetBody() == this._body) other = hit.GetFixtureA().GetBody();
+			
+			var pos:b2Vec2 = other.GetPosition();/*new b2Vec2();
+			var manifold:b2Manifold = hit.GetManifold();
+			for(var i:int = 0; i < manifold.m_pointCount; i++){
+				var point:b2ManifoldPoint = hit.GetManifold().m_points[i];
+				pos.Add(point.m_localPoint);
+			}
+			pos.Multiply(1/manifold.m_pointCount);*/
+			
+			var relRot:Number = Math.atan2((pos.y - _body.GetPosition().y) , (pos.x - _body.GetPosition().x)) * MathHelper.RADTODEG;
+			relRot -= this.rot%360;
+			//relRot %= 360;
+			
+			trace("HIT " + relRot + " [" + pos.x + ", " + pos.y + "]");
+			
+			if(relRot < 45 && relRot > -45) {
+				this.front.gotoAndStop(2);
+			}
+			if(relRot < 135 && relRot > 45) {
+				this.right.gotoAndStop(2);
+			}
+			if(relRot < -45 && relRot > -135) {
+				this.left.gotoAndStop(2);
 			}
 		}
 		
