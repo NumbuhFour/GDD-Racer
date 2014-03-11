@@ -23,9 +23,10 @@
 			var doSetup:Boolean = (w != _world);
 			this._world = w;
 			setupPhys();
+			_body.SetUserData(this);
 		}
 		
-		protected function setupPhys(){}
+		protected virtual function setupPhys(){}
 
 	}
 	

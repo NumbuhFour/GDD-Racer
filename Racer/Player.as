@@ -19,22 +19,17 @@
 	import Box2D.Dynamics.Joints.b2PrismaticJointDef;
 	import Box2D.Dynamics.b2DebugDraw;
 	import flash.display.Sprite;
+	import Box2D.Dynamics.Joints.b2Joint;
 	
 	public class Player extends PhysicalClip {
-		
-		private var maxVel:Number = 30;
-		private var maxAccel:Number = 8;
-		private var maxVelR:Number = 8.5;
-		
-		private var accelSpeed:Number = 0.9; //Speed acceleration increases
-		private var rotSpeed:Number = 0.65; //Speed rotation velocity increases;
 		
 		private var _posX:Number = 0;
 		private var _posY:Number = 0;
 		private var _rot:Number = 0;	
 		
 		private var _wheels:Dictionary;
-		private var _joints:Dictionary;
+		private var _flJoint:b2RevoluteJoint;
+		private var _frJoint:b2RevoluteJoint;
 		
 		public function Player() {
 		}
@@ -53,10 +48,57 @@
 			_fixtureDef.density = 0.3;
 			_fixture = _body.CreateFixture(_fixtureDef);
 			
+
+			var maxForwardSpeed:Number = 150;
+			var maxBackwardSpeed:Number = -40;
+			var frontTireMaxDrive:Number = 40;
+			var backTireMaxDrive:Number = 10;
+			var frontLateral:Number = 8.5;
+			var backLateral:Number = 7.5;
 			
 			_wheels = new Dictionary();
-			_joints = new Dictionary();
-			var fWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			var flWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			flWheel.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, frontTireMaxDrive, frontLateral);
+			var frWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			frWheel.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, frontTireMaxDrive, frontLateral);
+			var blWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			blWheel.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, backTireMaxDrive, backLateral);
+			var brWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
+			brWheel.setCharacteristics(maxForwardSpeed, maxBackwardSpeed, backTireMaxDrive, backLateral);
+			
+			_wheels[0] = flWheel;
+			_wheels[1] = frWheel;
+			_wheels[2] = blWheel;
+			_wheels[3] = brWheel;
+			
+			flWheel.setPosition(this.x+this.width/2, this.y-this.height/2);
+			frWheel.setPosition(this.x+this.width/2, this.y+this.height/2);
+			blWheel.setPosition(this.x-this.width/2, this.y-this.height/2);
+			brWheel.setPosition(this.x-this.width/2, this.y+this.height/2);
+			
+			var jointDef:b2RevoluteJointDef = new b2RevoluteJointDef();
+			jointDef.bodyA = _body;
+			jointDef.enableLimit = true;
+			jointDef.lowerAngle = 0;//with both these at zero...
+			jointDef.upperAngle = 0;//...the joint will not move
+			jointDef.localAnchorB.SetZero();//joint anchor in tire is always center
+			
+			jointDef.localAnchorA.Set(this.width/2/GameScreen.SCALE, -this.height/2/GameScreen.SCALE); //Front left
+			jointDef.bodyB = _wheels[0].body;
+			_flJoint = _world.CreateJoint(jointDef) as b2RevoluteJoint;
+			
+			jointDef.localAnchorA.Set(this.width/2/GameScreen.SCALE, this.height/2/GameScreen.SCALE); //Front right
+			jointDef.bodyB = _wheels[1].body;
+			_frJoint = _world.CreateJoint(jointDef) as b2RevoluteJoint;
+			
+			jointDef.localAnchorA.Set(-this.width/2/GameScreen.SCALE, -this.height/2/GameScreen.SCALE); //Back left
+			jointDef.bodyB = _wheels[2].body;
+			_world.CreateJoint(jointDef);
+			jointDef.localAnchorA.Set(-this.width/2/GameScreen.SCALE, this.height/2/GameScreen.SCALE); //Back right
+			jointDef.bodyB = _wheels[3].body;
+			_world.CreateJoint(jointDef);
+			
+			/*var fWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
 			var bWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
 			
 			fWheel.setPosition(this.x+this.width/2, this.y);
@@ -80,7 +122,7 @@
 			var bJoint:b2RevoluteJoint = _world.CreateJoint(frontJointDef) as b2RevoluteJoint;
 			
 			_joints[0] = fJoint;
-			_joints[1] = bJoint;
+			_joints[1] = bJoint;*/
 		}
 		
 		public function update():void {
@@ -89,47 +131,51 @@
 			this._posY = _body.GetPosition().y * GameScreen.SCALE;
 			this._rot  = _body.GetAngle()*(180/Math.PI);
 			
-			applyFriction();
-			turnDrive();
-			frontDrive();
-			//trace(this);
-		}
-		
-		private function frontDrive(){
-			var up:Boolean = Keyboarder.keyIsDown(Keyboard.W);
-			var down:Boolean = Keyboarder.keyIsDown(Keyboard.S);
-			
-			if(up || down) {
-				var desiredSpeed:Number = 0;
-				if(up) desiredSpeed = 16;
-				else if(down) desiredSpeed = -12;
-				
-				var currentForwardNormal:b2Vec2 = _body.GetWorldVector(new b2Vec2(1,0));
-				var currentSpeed:Number = b2Math.Dot(getForwardVelocity(), currentForwardNormal);
-				
-				var force:Number = 0;
-				
-				if(desiredSpeed > currentSpeed)
-					force = 100;
-				else if (desiredSpeed < currentSpeed)
-					force = -100;
-				else
-					return;
-				currentForwardNormal.Multiply(force);
-				_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
+			for(var i:int = 0; i < 4; i++){
+				(_wheels[i] as Wheel).applyFriction();
+				if(i < 2){
+					(_wheels[i] as Wheel).frontDrive();
+					//(_wheels[i] as Wheel).turnDrive();
+				}
 			}
+			turnDrive();
+			
+			//applyFriction();
+			//turnDrive();
+			//frontDrive();
+			//trace(this);
 		}
 		
 		private function turnDrive(){
 			var left:Boolean = Keyboarder.keyIsDown(Keyboard.A);
 			var right:Boolean = Keyboarder.keyIsDown(Keyboard.D);
 			
-			if(left || right){
-				var desiredTorque:Number = 0;
-				if(left) desiredTorque = -11;
-				else if(right) desiredTorque = 11;
-				
-				_body.ApplyTorque(desiredTorque);
+			var lockAngle = 23 * MathHelper.DEGTORAD;
+			var turnSpeedPerSec:Number = 90 * MathHelper.DEGTORAD;
+			var turnPerTimeStep:Number = turnSpeedPerSec / 24; //Framerate
+			var desiredAngle:Number = 0;
+			
+			if(left) desiredAngle = -lockAngle;
+			if(right) desiredAngle = lockAngle;
+			
+			var angleNow:Number = this._flJoint.GetJointAngle();
+			var angleToTurn:Number = desiredAngle - angleNow;
+			angleToTurn = MathHelper.clamp(angleToTurn,-turnPerTimeStep, turnPerTimeStep);
+			var newAngle = angleNow + angleToTurn;
+			_flJoint.SetLimits(newAngle,newAngle);
+			_frJoint.SetLimits(newAngle,newAngle);
+			
+			//cheatAlign();
+		}
+		
+		private function cheatAlign(){
+			var tol:Number = 10;
+			var rot = _body.GetAngle()*MathHelper.RADTODEG;
+			trace("RAWR " + Math.abs(rot%90));
+			if(Math.abs(rot%90) > tol && Math.abs(rot%90) < 90-tol){
+				var dir:Number = 1;
+				if(this.rotation%90 < tol) dir = -1;
+				_body.SetAngle(_body.GetAngle() + dir*2*MathHelper.DEGTORAD*(this.getForwardVelocity().Length()/10));
 			}
 		}
 		

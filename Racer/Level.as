@@ -1,3 +1,4 @@
+﻿
 ﻿package Racer {
 	
 	import flash.display.MovieClip;
@@ -15,10 +16,14 @@
 			
 			for(var i:int = 0; i < this.numChildren; i++){
 				var o:DisplayObject = this.getChildAt(i);
-				if(o instanceof PhysicalClip){
+				if(o is PhysicalClip){
 					(o as PhysicalClip).world = _gameScreen.world;
 				}
 			}
+		}
+		
+		public function get gameScreen():GameScreen{
+			return _gameScreen;
 		}
 
 	}
