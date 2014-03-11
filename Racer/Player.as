@@ -36,6 +36,13 @@
 		
 		private var _totalDamage:Number = 0;
 		
+		var maxForwardSpeed:Number = 150;
+		var maxBackwardSpeed:Number = -40;
+		var frontTireMaxDrive:Number = 40;
+		var backTireMaxDrive:Number = 10;
+		var frontLateral:Number = 8.5;
+		var backLateral:Number = 7.5;
+		
 		public function Player() {
 		}
 		
@@ -53,13 +60,6 @@
 			_fixtureDef.density = 0.3;
 			_fixture = _body.CreateFixture(_fixtureDef);
 			
-
-			var maxForwardSpeed:Number = 150;
-			var maxBackwardSpeed:Number = -40;
-			var frontTireMaxDrive:Number = 40;
-			var backTireMaxDrive:Number = 10;
-			var frontLateral:Number = 8.5;
-			var backLateral:Number = 7.5;
 			
 			_wheels = new Dictionary();
 			var flWheel:Wheel = new Wheel(_world,this.width/6, this.height/6);
@@ -161,8 +161,13 @@
 		private function turnDrive(){
 			var left:Boolean = Keyboarder.keyIsDown(Keyboard.A);
 			var right:Boolean = Keyboarder.keyIsDown(Keyboard.D);
+
+			var max:Number = this.maxForwardSpeed-12;
+			max *= max;
+			var velRatio:Number = 1 / (this._body.GetLinearVelocity().LengthSquared() / max);
+			//trace("Velocity: " + velRatio);
 			
-			var lockAngle = 23 * MathHelper.DEGTORAD;
+			var lockAngle = (55-this._body.GetLinearVelocity().Length()*1.8) * MathHelper.DEGTORAD;
 			var turnSpeedPerSec:Number = 90 * MathHelper.DEGTORAD;
 			var turnPerTimeStep:Number = turnSpeedPerSec / 24; //Framerate
 			var desiredAngle:Number = 0;
