@@ -25,6 +25,9 @@
 		private var dbg:b2DebugDraw;
 		private var centerSprite:Sprite;
 		
+		private var _cameraMode:int = 0;
+		private var _wasCDown:Boolean = false;
+		
 		var _carLayer:CarLayer;
 		var _buildingLayer:BuildingLayer;
 		var _player:Player;
@@ -67,7 +70,7 @@
 			addChild(_carLayer);
 
 			_player = new Player();
-			super.addChild(_player);
+			addChild(_player);
 			_player.world = _world;
 			
 			_carLayer.init(); 
@@ -113,6 +116,11 @@
 			}
 			_wasQDown = Keyboarder.keyIsDown(Keyboard.Q);
 			
+			if(Keyboarder.keyIsDown(Keyboard.C) && !_wasCDown){
+				this._cameraMode = (this._cameraMode+1)%2;
+			}
+			_wasCDown = Keyboarder.keyIsDown(Keyboard.C);
+			
 			_world.Step(_stepTime,10,10);
 			_world.ClearForces();
 			if(DEBUG) _world.DrawDebugData();
@@ -123,42 +131,69 @@
 			moveCamera();
 		}
 		
-		private var lastOffX:Number = 0;
-		private var lastOffY:Number = 0;
-		private var lastOffPX:Number = 0;
-		private var lastOffPY:Number = 0;
-		
+		private var lastX:Number = 0;
+		private var lastY:Number = 0;
+		private var lastR:Number = 0;
 		private function moveCamera(){
 			
-			//Camera offsetting with vel
-			var ratio:Number = 5;
-			var offX:Number = 0//-_player.velocity.x * SCALE / ratio;
-			var offY:Number = 0//-_player.velocity.y * SCALE / ratio;
-			var offPX:Number = 0//_player.getLateralVelocity().y*SCALE / ratio;
-			var offPY:Number = 0//_player.getForwardVelocity().x*SCALE / ratio;
-
-			offX = offY = offPX = offPY = 0; //Disabled
 			
-			offX = (lastOffX + offX)/2
-			offY = (lastOffY + offY)/2
-			offPX = (lastOffPX + offPX)/2
-			offPY = (lastOffPY + offPY)/2
-			
-			_player.x = offPX;
-			_player.y = offPY;
-			
-			_translationContainer.x = -_player.position.x + offX;
-			_translationContainer.y = -_player.position.y + offY;
-			
-			lastOffX = offX;
-			lastOffY = offY;
-			lastOffPX = offPX;
-			lastOffPY = offPY;
+			if(this._cameraMode == 0){
+				var camX:Number = -_player.position.x;
+				var camY:Number = -_player.position.y;
+				var camR:Number = -_player.rot;
+				var difX:Number = (camX - lastX)*2;
+				var difY:Number = (camY - lastY)*2;
+				var difR:Number = (camR - lastR)*2;
+				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
+				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
+				_rotationContainer.rotation = camR + difR -90;//(camR + lastR) / 2 - 90;
+				//_player.rotation = -90;
+				
+				//var r:Number = Math.atan(camR - lastR);
+				//_player.x = r * (camY - lastY);
+				//_player.y = (1/r) * (camX - lastX);
+				
+				lastX = -_player.position.x;
+				lastY = -_player.position.y;
+				lastR = -_player.rot;
+				
+				_player.x = _player.position.x;
+				_player.y = _player.position.y;
+				_player.rotation = _player.rot;
+			}else if(this._cameraMode == 1){
+				/*
+				_translationContainer.x = -_player.position.x;
+				_translationContainer.y = -_player.position.y;
+				_rotationContainer.rotation = 0;
+				_player.rotation = _player.rot;*/
+				
+				var camX:Number = -_player.position.x;
+				var camY:Number = -_player.position.y;
+				var camR:Number = -_player.rot;
+				var difX:Number = (camX - lastX)*2;
+				var difY:Number = (camY - lastY)*2;
+				var difR:Number = (camR - lastR)*2;
+				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
+				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
+				_rotationContainer.rotation = 0;//camR + difR -90;//(camR + lastR) / 2 - 90;
+				//_player.rotation = -90;
+				
+				//var r:Number = Math.atan(camR - lastR);
+				//_player.x = r * (camY - lastY);
+				//_player.y = (1/r) * (camX - lastX);
+				
+				lastX = -_player.position.x;
+				lastY = -_player.position.y;
+				lastR = -_player.rot;
+				
+				_player.x = _player.position.x;
+				_player.y = _player.position.y;
+				_player.rotation = _player.rot;
+				
+			}
 			
 			this.x = stage.stageWidth/2;
 			this.y = stage.stageHeight/2;
-			_rotationContainer.rotation = -_player.rot - 90;
-			_player.rotation = -90;
 			
 			//_player.x = _player.position.x;
 			//_player.y = _player.position.y;
