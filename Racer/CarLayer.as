@@ -1,6 +1,7 @@
 ﻿package  Racer{
 	
 	import flash.display.MovieClip;
+	import flash.utils.Dictionary;
 	
 	public class CarLayer extends AbstractGameLayer{
 
@@ -12,7 +13,8 @@
 			
 		}
 		
-		public function init(){
+		public function init(nodes:Dictionary){
+			dispatch.createNodes(nodes);
 			cops = new Vector.<Cop>();
 			initCops();
 		}

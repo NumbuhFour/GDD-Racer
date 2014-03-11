@@ -15,7 +15,7 @@
 			
 			for(var i:int = 0; i < this.numChildren; i++){
 				var o:DisplayObject = this.getChildAt(i);
-				if(o is PhysicalClip){
+				if(o instanceof PhysicalClip){
 					(o as PhysicalClip).world = _gameScreen.world;
 				}
 			}

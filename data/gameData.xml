@@ -1,0 +1,84 @@
+<xml>
+	<levels>
+		<testLevel>
+			<node id="n0001">
+				<nodeID>n0002</nodeID>
+				<nodeID>n0007</nodeID>
+			</node>
+			<node id="n0002">
+				<nodeID>n0001</nodeID>
+				<nodeID>n0003</nodeID>
+				<nodeID>n0009</nodeID>
+			</node>
+			<node id="n0003">
+				<nodeID>n0002</nodeID>
+				<nodeID>n0004</nodeID>
+				<nodeID>n0010</nodeID>
+			</node>
+			<node id="n0004">
+				<nodeID>n0003</nodeID>
+				<nodeID>n0014</nodeID>
+				<nodeID>n0005</nodeID>
+			</node>
+			<node id="n0005">
+				<nodeID>n0004</nodeID>
+				<nodeID>n0016</nodeID>
+			</node>
+			<node id="n0006">
+				<nodeID>n0007</nodeID>
+				<nodeID>n0011</nodeID>
+			</node>
+			<node id="n0007">
+				<nodeID>n0001</nodeID>
+				<nodeID>n0006</nodeID>
+				<nodeID>n0008</nodeID>
+			</node>
+			<node id="n0008">
+				<nodeID>n0007</nodeID>
+				<nodeID>n0009</nodeID>
+				<nodeID>n0012</nodeID>
+				<nodeID>n0013</nodeID>
+			</node>
+			<node id="n0009">
+				<nodeID>n0002</nodeID>
+				<nodeID>n0008</nodeID>
+				<nodeID>n0010</nodeID>
+				<nodeID>n0013</nodeID>
+			</node>
+			<node id="n0010">
+				<nodeID>n0009</nodeID>
+				<nodeID>n0003</nodeID>
+			</node>
+			<node id="n0011">
+				<nodeID>n0006</nodeID>
+				<nodeID>n0012</nodeID>
+			</node>
+			<node id="n0012">
+				<nodeID>n0008</nodeID>
+				<nodeID>n0009</nodeID>
+				<nodeID>n0011</nodeID>
+				<nodeID>n0013</nodeID>
+			</node>
+			<node id="n0013">
+				<nodeID>n0008</nodeID>
+				<nodeID>n0009</nodeID>
+				<nodeID>n0012</nodeID>
+				<nodeID>n0014</nodeID>
+			</node>
+			<node id="n0014">
+				<nodeID>n0004</nodeID>
+				<nodeID>n0013</nodeID>
+				<nodeID>n0015</nodeID>
+			</node>
+			<node id="n0015">
+				<nodeID>n0014</nodeID>
+				<nodeID>n0016</nodeID>
+			</node>
+			<node id="n0016">
+				<nodeID>n0015</nodeID>
+				<nodeID>n0005</nodeID>
+			</node>
+		</testLevel>
+	</levels>
+
+</xml>

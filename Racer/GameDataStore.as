@@ -1,4 +1,4 @@
-﻿package code {
+﻿package Racer {
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	import flash.events.*;
@@ -23,6 +23,7 @@
 		public function get xml():XML{return _xml;}
 		
 		public function loadXML(aUrlToDownload:String){
+			if (!_xmlLoader){
 			trace(this + " loadXML() called with aUrlToDownload=" + aUrlToDownload);
 			
 			// Create _xmlLoader and request and set callback for when XML is loaded
@@ -35,11 +36,12 @@
 			// create a request and load the file
 			var request:URLRequest = new URLRequest(aUrlToDownload);
 			_xmlLoader.load(request);
+			}
 		}
 		
 		
 		private function onXMLLoaded(e:Event){
-			//trace(this + " onXMLLoaded() called");
+			trace(this + " onXMLLoaded() called");
 			_xml = new XML(e.target.data);
 			//trace(this + "onXMLLoaded() - _xml=" + _xml);
 			dispatchEvent(new Event(GameDataStore.LOAD_COMPLETE));

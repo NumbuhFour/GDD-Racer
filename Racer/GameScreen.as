@@ -12,10 +12,12 @@
 	import flash.events.TimerEvent;
 	import flash.display.DisplayObject;
 	import Box2D.Dynamics.b2DebugDraw;
+	import flash.utils.Dictionary;
 	
 	public class GameScreen extends Sprite{
 		public static const FRICTION:Number = 10;
 		public static const SCALE:Number = 17;
+		private static const XML_PATH:String = "data/gameData.xml";
 		
 		var _carLayer:CarLayer;
 		var _buildingLayer:BuildingLayer;
@@ -37,6 +39,8 @@
 			_rotationContainer.addChild(_translationContainer);
 			super.addChild(_rotationContainer);
 			addChild(_backgroundClip);
+			GameDataStore.sharedInstance.loadXML(XML_PATH);
+			GameDataStore.sharedInstance.addEventListener(GameDataStore.LOAD_COMPLETE, onXMLLoaded);
 		}
 		
 		public function init(){
@@ -50,10 +54,13 @@
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
 			
+			this._backgroundClip.gameScreen = this;
+			
 			//_buildingLayer = new BuildingLayer(this);
 			//addChild(_buildingLayer);
 			
 			_carLayer = new CarLayer(this);
+			
 			addChild(_carLayer);
 
 			_player = new Player();
@@ -61,7 +68,12 @@
 			_player.world = _world;
 			
 			//uiLayer = new UILayer(this);
-			_carLayer.init();
+			var dict:Dictionary = new Dictionary();
+			var j:int = 0;
+			for (var i:int = 0; i < background.numChildren; i++)
+				if(background.getChildAt(i) is Node)
+					dict[background.getChildAt(i).name] = background.getChildAt(i);			
+			_carLayer.init(dict);
 			//_buildingLayer.init();
 			//uiLayer.init();
 			//addChild(BuildingLayer);
@@ -71,6 +83,10 @@
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
 			
+		}
+		
+		public function onXMLLoaded(e:Event):void{
+			this.init();
 		}
 		
 		private function update(event:Event){

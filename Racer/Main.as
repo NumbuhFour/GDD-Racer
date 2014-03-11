@@ -11,16 +11,14 @@
 		public function Main() {
 
 			_background = new TestLevel();
-			_gameScreen = new GameScreen(_background)
+			_gameScreen = new GameScreen(_background);
 			//background = this.getChildByName("background_clip") as MovieClip;
 			
-			_gameScreen = new GameScreen(_background)
+			//_gameScreen.init();
 			
-			_gameScreen.init();
-			_background.gameScreen = _gameScreen;
 			
 			addChild(_gameScreen);
-			new Keyboarder(this);
+			new Keyboarder(this); 
 		}
 	}
 	
