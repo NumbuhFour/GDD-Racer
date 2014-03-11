@@ -23,10 +23,10 @@
 		public static const FRICTION:Number = 10;
 		public static const SCALE:Number = 17;
 		public static var DEBUG:Boolean = false;
-		private static const XML_PATH:String = "data/gameData.xml";
 		private var _wasQDown:Boolean = false;
 		private var dbg:b2DebugDraw;
 		private var centerSprite:Sprite;
+		private static const XML_PATH:String = "data/gameData.xml";
 		
 		var _carLayer:CarLayer;
 		var _buildingLayer:BuildingLayer;
@@ -94,7 +94,7 @@
 			dbg.SetDrawScale(GameScreen.SCALE);
 			dbg.SetFillAlpha(0.3);
 			dbg.SetLineThickness(1.0);
-			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit );
+			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_aabbBit);
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
 		}
@@ -187,6 +187,8 @@
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
 				win();
+			}else if(o1 is Player || o2 is Player){
+				_player.takeDamage(e.point);
 			}
 		}
 		
