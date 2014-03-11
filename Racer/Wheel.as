@@ -78,11 +78,14 @@
 		
 		public function applyFriction():void {
 			var impulse:b2Vec2 = getLateralVelocity().GetNegative();
-			if ( impulse.Length() > this._maxLateral )
-				impulse.Multiply(this._maxLateral / impulse.Length());
+
+			//Skidding
+			//if ( impulse.Length() > this._maxLateral )
+			//	impulse.Multiply(this._maxLateral / impulse.Length());
+			
 			impulse.Multiply(_body.GetMass());
 			_body.ApplyImpulse(impulse, _body.GetWorldCenter());
-			_body.ApplyAngularImpulse(0.1 * _body.GetInertia() * - _body.GetAngularVelocity());
+			_body.ApplyAngularImpulse(0.3 * _body.GetInertia() * - _body.GetAngularVelocity());
 			
 			//Forward drag
 			var currentForwardNormal:b2Vec2 = getForwardVelocity();

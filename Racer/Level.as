@@ -20,6 +20,10 @@
 				}
 			}
 		}
+		
+		public function get gameScreen():GameScreen{
+			return _gameScreen;
+		}
 
 	}
 	

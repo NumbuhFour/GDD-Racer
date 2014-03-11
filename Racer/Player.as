@@ -23,13 +23,6 @@
 	
 	public class Player extends PhysicalClip {
 		
-		private var maxVel:Number = 30;
-		private var maxAccel:Number = 8;
-		private var maxVelR:Number = 8.5;
-		
-		private var accelSpeed:Number = 0.9; //Speed acceleration increases
-		private var rotSpeed:Number = 0.65; //Speed rotation velocity increases;
-		
 		private var _posX:Number = 0;
 		private var _posY:Number = 0;
 		private var _rot:Number = 0;	
@@ -58,8 +51,8 @@
 
 			var maxForwardSpeed:Number = 150;
 			var maxBackwardSpeed:Number = -40;
-			var frontTireMaxDrive:Number = 80;
-			var backTireMaxDrive:Number = 60;
+			var frontTireMaxDrive:Number = 40;
+			var backTireMaxDrive:Number = 10;
 			var frontLateral:Number = 8.5;
 			var backLateral:Number = 7.5;
 			
@@ -157,8 +150,8 @@
 			var left:Boolean = Keyboarder.keyIsDown(Keyboard.A);
 			var right:Boolean = Keyboarder.keyIsDown(Keyboard.D);
 			
-			var lockAngle = 27 * MathHelper.DEGTORAD;
-			var turnSpeedPerSec:Number = 160 * MathHelper.DEGTORAD;
+			var lockAngle = 23 * MathHelper.DEGTORAD;
+			var turnSpeedPerSec:Number = 90 * MathHelper.DEGTORAD;
 			var turnPerTimeStep:Number = turnSpeedPerSec / 24; //Framerate
 			var desiredAngle:Number = 0;
 			
@@ -171,6 +164,19 @@
 			var newAngle = angleNow + angleToTurn;
 			_flJoint.SetLimits(newAngle,newAngle);
 			_frJoint.SetLimits(newAngle,newAngle);
+			
+			//cheatAlign();
+		}
+		
+		private function cheatAlign(){
+			var tol:Number = 10;
+			var rot = _body.GetAngle()*MathHelper.RADTODEG;
+			trace("RAWR " + Math.abs(rot%90));
+			if(Math.abs(rot%90) > tol && Math.abs(rot%90) < 90-tol){
+				var dir:Number = 1;
+				if(this.rotation%90 < tol) dir = -1;
+				_body.SetAngle(_body.GetAngle() + dir*2*MathHelper.DEGTORAD*(this.getForwardVelocity().Length()/10));
+			}
 		}
 		
 		public function getLateralVelocity():b2Vec2 {

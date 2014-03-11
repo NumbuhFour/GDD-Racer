@@ -15,6 +15,7 @@
 	import com.as3toolkit.ui.Keyboarder;
 	import flash.ui.Keyboard;
 	import flash.display.Graphics;
+	import Box2D.Dynamics.b2ContactListener;
 	
 	public class GameScreen extends Sprite{
 		public static const FRICTION:Number = 10;
@@ -33,6 +34,7 @@
 		var _rotationContainer:MovieClip;
 		
 		private var _world:b2World;
+		private var _contactListener:ContactListener;
 		private var _stepTime:Number = 0.042;
 		private var _stepTimer:Timer;
 		
@@ -54,16 +56,12 @@
 		
 		public function init(){
 			_world = new b2World(new b2Vec2(),true);
-			dbg = new b2DebugDraw();
-			dbg.SetSprite(new Sprite());
-			dbg.SetDrawScale(GameScreen.SCALE);
-			dbg.SetFillAlpha(0.3);
-			dbg.SetLineThickness(1.0);
-			dbg.SetFlags(b2DebugDraw.e_shapeBit /*| b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit*/ );
-			_world.SetDebugDraw(dbg);
+			(_backgroundClip as Level).gameScreen = this;
 			
-			//_buildingLayer = new BuildingLayer(this);
-			//addChild(_buildingLayer);
+			_contactListener = new ContactListener(this);
+			_world.SetContactListener(_contactListener);
+			
+			this.addEventListener(ContactListener.CONTACT_MADE, onContactMade);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
@@ -72,17 +70,20 @@
 			super.addChild(_player);
 			_player.world = _world;
 			
-			//uiLayer = new UILayer(this);
-			_carLayer.init();
-			//_buildingLayer.init();
-			//uiLayer.init();
-			//addChild(BuildingLayer);
-			//addChild(uiLayer);
-			//addEventListener(Event.ENTER_FRAME, update);
+			_carLayer.init(); 
+			
 			_stepTimer = new Timer(_stepTime);
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
 			
+			//Debugging
+			dbg = new b2DebugDraw();
+			dbg.SetSprite(new Sprite());
+			dbg.SetDrawScale(GameScreen.SCALE);
+			dbg.SetFillAlpha(0.3);
+			dbg.SetLineThickness(1.0);
+			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit );
+			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
 		}
 		
@@ -131,10 +132,10 @@
 			
 			//Camera offsetting with vel
 			var ratio:Number = 5;
-			var offX:Number = -_player.velocity.x * SCALE / ratio;
-			var offY:Number = -_player.velocity.y * SCALE / ratio;
-			var offPX:Number = _player.getLateralVelocity().y*SCALE / ratio;
-			var offPY:Number = _player.getForwardVelocity().x*SCALE / ratio;
+			var offX:Number = 0//-_player.velocity.x * SCALE / ratio;
+			var offY:Number = 0//-_player.velocity.y * SCALE / ratio;
+			var offPX:Number = 0//_player.getLateralVelocity().y*SCALE / ratio;
+			var offPY:Number = 0//_player.getForwardVelocity().x*SCALE / ratio;
 
 			offX = offY = offPX = offPY = 0; //Disabled
 			
@@ -164,6 +165,19 @@
 			//_player.rotation = _player.rot;
 		}
 		
+		
+		public function onContactMade(e:ContactEvent){
+			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
+			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
+			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
+				win();
+			}
+		}
+		
+		public function win(){
+			trace("WINNNNER!!!!");
+			Main.instance.winDerp();
+		}
 		
 		public function get player():Player { return _player; }
 		
