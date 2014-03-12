@@ -65,6 +65,7 @@
 			_world.SetContactListener(_contactListener);
 			
 			this.addEventListener(ContactListener.CONTACT_MADE, onContactMade);
+			this.addEventListener(ContactListener.CONTACT_REMOVED, onContactLost);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
@@ -202,6 +203,17 @@
 		
 		
 		public function onContactMade(e:ContactEvent){
+			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
+			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
+			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
+				win();
+			}else if(o1 is Player || o2 is Player){
+				_player.takeDamage(e.point);
+			}
+		}
+		
+		
+		public function onContactLost(e:ContactEvent){
 			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){

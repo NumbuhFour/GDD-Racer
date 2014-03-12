@@ -29,7 +29,7 @@
 		}
 		public function winDerp(){
 			trace("derp");
-			this.win.visible = true;
+			this.win.visible = !this.win.visible;
 			this.swapChildren(this.win,this._gameScreen);
 		}
 	}

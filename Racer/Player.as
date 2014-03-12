@@ -183,12 +183,17 @@
 			_frJoint.SetLimits(newAngle,newAngle);
 			
 			//cheatAlign();
+			
+			//Aligning wheel sprites
+			var wRot:Number = newAngle * MathHelper.RADTODEG;
+			this.leftWheelClip.rotation = wRot;
+			this.rightWheelClip.rotation = wRot;
 		}
 		
 		private function cheatAlign(){
 			var tol:Number = 10;
 			var rot = _body.GetAngle()*MathHelper.RADTODEG;
-			trace("RAWR " + Math.abs(rot%90));
+			
 			if(Math.abs(rot%90) > tol && Math.abs(rot%90) < 90-tol){
 				var dir:Number = 1;
 				if(this.rotation%90 < tol) dir = -1;
@@ -224,6 +229,9 @@
 			}
 			if(relRot < -45 && relRot > -135) {
 				this.left.gotoAndStop(2);
+			}
+			if((relRot > 135 && relRot < 225) || (relRot < - 135 && relRot > -225)) {
+				this.back.gotoAndStop(2);
 			}
 		}
 		
