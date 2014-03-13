@@ -33,6 +33,7 @@
 		var _player:Player;
 		var _backgroundClip:MovieClip;
 		var _uiLayer:UILayer;
+		var _buildings:Vector.<Building> = new Vector.<Building>;
 		var _translationContainer:MovieClip;
 		var _rotationContainer:MovieClip;
 		
@@ -78,12 +79,17 @@
 			var dict:Dictionary = new Dictionary();
 			var j:int = 0;
 			for (var i:int = 0; i < background.numChildren; i++){
-				if(background.getChildAt(i) is Node)
-					dict[background.getChildAt(i).name] = background.getChildAt(i);	
+				if(background.getChildAt(i) is Node){
+					trace(background.getChildAt(i).name);
+					dict[background.getChildAt(i).name] = background.getChildAt(i);
+				}
+				else if (background.getChildAt(i) is Building){
+					_buildings.push(background.getChildAt(i));
+				}
 			}
 			
 			_carLayer.init(dict); 
-			
+			_carLayer.initCops(2);
 			_stepTimer = new Timer(_stepTime);
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
@@ -118,6 +124,7 @@
 						g.moveTo(-size*sqr,iy*sqr);
 						g.lineTo(size*sqr,iy*sqr);
 					}
+import Racer.Building;
 							
 				}else{
 					g.clear();
@@ -203,6 +210,8 @@
 		
 		public function get world():b2World { return _world; }
 		public function get stepTime():Number { return _stepTime; }
+	
+		public function get buildings():Vector.<Building> { return _buildings; }
 	
 		public override function addChild(child:DisplayObject):DisplayObject{
 			return this._translationContainer.addChild(child);
