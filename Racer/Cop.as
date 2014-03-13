@@ -4,8 +4,16 @@
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	import flash.geom.Rectangle;
+	import Box2D.Dynamics.b2World;
+	import Box2D.Dynamics.b2BodyDef;
+	import Box2D.Dynamics.b2Body;
+	import Box2D.Collision.Shapes.b2Shape;
+	import Box2D.Dynamics.b2FixtureDef;
+	import Box2D.Dynamics.b2Fixture;
+	import Box2D.Common.Math.b2Vec2;
+	import Box2D.Collision.Shapes.b2PolygonShape;
 	
-	public class Cop extends MovieClip{
+	public class Cop extends PhysicalClip{
 
 		private var gameScreen:GameScreen;
 		private var player:Player;
@@ -29,14 +37,33 @@
 			this.gameScreen = gameScreen;
 		}
 		
+		protected override function setupPhys() {
+			_bodyDef = new b2BodyDef();
+			_bodyDef.type = b2Body.b2_dynamicBody;
+			
+			_fixtureDef = new b2FixtureDef();
+			
+			_body = _world.CreateBody(_bodyDef);			
+			
+			_shape = new b2PolygonShape();
+			var wid:Number = 88;
+			var hei:Number = 45;
+			(_shape as b2PolygonShape).SetAsBox(wid / 2 / GameScreen.SCALE, hei / 2 / GameScreen.SCALE);
+			_fixtureDef.shape = _shape;
+			_fixtureDef.density = 0.3;
+			_fixture = _body.CreateFixture(_fixtureDef);
+			
+		}
+		
 		public function init(aPlayer:Player, dispatch:Dispatch){
 			initWithPosition(aPlayer, 100, 100, dispatch);
 		}
 		
 		//initializes officer with a location
 		public function initWithPosition(aPlayer:Player, x:int, y:int, dispatch:Dispatch){
-			this.x = x;
-			this.y = y;
+			//this.x = x;
+			//this.y = y;
+			_body.SetPosition(new b2Vec2(x / GameScreen.SCALE, y / GameScreen.SCALE));
 			this.player = aPlayer;
 			this.dispatch = dispatch;
 			actions["stop"] = 0;
@@ -64,12 +91,20 @@
 		
 		//updates officer's location and velocity
 		public function update(){
+			
+			this.x = _body.GetPosition().x * GameScreen.SCALE;
+			this.y = _body.GetPosition().y * GameScreen.SCALE;
+			super.rotation  = _body.GetAngle()*MathHelper.RADTODEG;
+
+			_body.SetAngularVelocity(0);
+			_body.SetLinearVelocity(new b2Vec2());
+			
 			var radians:Number = rotation * Math.PI/180;
 			this.vVel.x = Math.cos(radians) * velocity;
 			this.vVel.y = Math.sin(radians) * velocity;
-			this.vPos.x = this.x;
-			this.vPos.y = this.y;
-			var angle:Number
+			this.vPos.x = this.getX();
+			this.vPos.y = this.getY();
+			var angle:Number;
 			if (this.actions[currAction] == 4){
 				angle = angleToPoint(calculateInterceptPoint());
 			}
@@ -122,8 +157,10 @@
 			else if (this.velocity < this.MAX_VEL)
 				this.velocity ++;
 			*/
-			this.x += vVel.x;
-			this.y += vVel.y
+			
+			this._body.SetLinearVelocity(new b2Vec2(vVel.x, vVel.y));
+			//this.x += vVel.x;
+			//this.y += vVel.y
 		}
 		
 		public function canSeePlayer(buildings:Vector.<Building>):Boolean{
@@ -169,6 +206,13 @@
 			return angle;
 		}
 
+		public function getX():Number { return _body.GetPosition().x * GameScreen.SCALE; }
+		public function getY():Number { return _body.GetPosition().y * GameScreen.SCALE; }
+		
+		public override function set rotation(val:Number):void {
+			_body.SetAngle(val * MathHelper.DEGTORAD);
+			super.rotation = val;
+		}
 	}
 	
 }

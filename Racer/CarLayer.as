@@ -37,6 +37,7 @@
 		public function initCops(numCops:int){
 			for (var i:int = 0; i < numCops; i++){ 			
 				var cop:Cop = new Cop(this._gameScreen);
+				cop.world = this._gameScreen.world;
 				cop.initWithPosition(_gameScreen.player, i*100, 100, dispatch);
 				cops.push(cop);
 				addChild(cop);

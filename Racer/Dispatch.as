@@ -75,7 +75,7 @@
 			}
 			if (viableNodes.length == 1)
 				return viableNodes[0];
-			else{
+			else if (viableNodes.length > 1){
 				var currNode:int;
 				var angle:int = int.MAX_VALUE;
 				for (i = 0; i < viableNodes.length; i++){
@@ -84,6 +84,7 @@
 				}
 				return viableNodes[currNode];
 			}
+			return this.Nodes['n0001'];
 		}
 		
 		private function findNextNode(node:Node, playerNodes:Vector.<Node>):Node{
