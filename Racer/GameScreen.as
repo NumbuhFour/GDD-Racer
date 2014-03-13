@@ -138,13 +138,13 @@
 		private function moveCamera(){
 			
 			
+			var camX:Number = -_player.position.x;
+			var camY:Number = -_player.position.y;
+			var camR:Number = -_player.rot;
+			var difX:Number = (camX - lastX)*2;
+			var difY:Number = (camY - lastY)*2;
+			var difR:Number = (camR - lastR)*2;
 			if(this._cameraMode == 0){
-				var camX:Number = -_player.position.x;
-				var camY:Number = -_player.position.y;
-				var camR:Number = -_player.rot;
-				var difX:Number = (camX - lastX)*2;
-				var difY:Number = (camY - lastY)*2;
-				var difR:Number = (camR - lastR)*2;
 				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
 				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
 				_rotationContainer.rotation = camR + difR -90;//(camR + lastR) / 2 - 90;
@@ -168,12 +168,6 @@
 				_rotationContainer.rotation = 0;
 				_player.rotation = _player.rot;*/
 				
-				var camX:Number = -_player.position.x;
-				var camY:Number = -_player.position.y;
-				var camR:Number = -_player.rot;
-				var difX:Number = (camX - lastX)*2;
-				var difY:Number = (camY - lastY)*2;
-				var difR:Number = (camR - lastR)*2;
 				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
 				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
 				_rotationContainer.rotation = 0;//camR + difR -90;//(camR + lastR) / 2 - 90;
