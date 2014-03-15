@@ -91,7 +91,7 @@
 		
 		//updates officer's location and velocity
 		public function update(){
-			
+			var deltaRot:Number = 0;
 			this.x = _body.GetPosition().x * GameScreen.SCALE;
 			this.y = _body.GetPosition().y * GameScreen.SCALE;
 			super.rotation  = _body.GetAngle()*MathHelper.RADTODEG;
@@ -112,7 +112,7 @@
 				angle = angleToPoint(node.point);
 			}
 			if (this.actions[currAction] > 1){
-				rotation += ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
+				deltaRot= ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
 				if (Math.abs(angle) > 90 && this.velocity > -5)
 					this.velocity --;
 				else if (this.velocity < this.MAX_VEL)
@@ -126,12 +126,12 @@
 					for (var i:int = 0; i < gameScreen.background.numChildren; i++){
 						var rect:Rectangle = gameScreen.background.getChildAt(i).getRect(parent.parent);
 						if (rect.intersects(rightRect) && !rect.intersects(leftRect)){
-							rotation += 5;
+							deltaRot += 5;
 							if (velocity > MAX_VEL/2)
 								velocity --;
 						}
 						else if (rect.intersects(leftRect) && !rect.intersects(rightRect)){
-							rotation -= 5;
+							deltaRot -= 5;
 							if (velocity > MAX_VEL/2)
 								velocity --;
 						}
@@ -139,7 +139,7 @@
 							
 						}
 						else if (rect.intersects(leftRect) && rect.intersects(rightRect) && rect.intersects(frontRect)){
-							rotation += 5;							
+							deltaRot += 5;							
 							velocity --;
 						}
 					}
@@ -157,7 +157,10 @@
 			else if (this.velocity < this.MAX_VEL)
 				this.velocity ++;
 			*/
-			
+			if (deltaRot > 10 || deltaRot < -10)
+				deltaRot = 10 * signOf(deltaRot);
+			trace("deltaRot: " + deltaRot);
+			rotation += deltaRot;
 			this._body.SetLinearVelocity(new b2Vec2(vVel.x, vVel.y));
 			//this.x += vVel.x;
 			//this.y += vVel.y
@@ -190,12 +193,12 @@
 		private function calculateInterceptPoint():Point{
 			var pos:Point = MathHelper.subPoints(player.position, vPos);
 			var vel:Point = MathHelper.subPoints(player.velocity, vVel);
-			trace("Pos: " + pos + "\tVel: " + vel);
+			trace("Pos: " + pos+ "\nVel: " + vel + "\nRot: " + rotation + "\n\n");
 			
 			var timeToClose:Number = 1;
 			if (vel.x != 0 || vel.y != 0)
-				Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2)) / Math.sqrt(Math.pow(vel.x, 2) + Math.pow(vel.y, 2))
-			trace("ttc: " + timeToClose);
+				timeToClose = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2)) / Math.sqrt(Math.pow(vel.x, 2) + Math.pow(vel.y, 2))
+			//trace("ttc: " + timeToClose);
 			return MathHelper.addPoints(player.position, MathHelper.scalePoint(player.velocity, timeToClose));
 		}
 		
@@ -209,6 +212,7 @@
 		public function getX():Number { return _body.GetPosition().x * GameScreen.SCALE; }
 		public function getY():Number { return _body.GetPosition().y * GameScreen.SCALE; }
 		
+		//rotation override
 		public override function set rotation(val:Number):void {
 			_body.SetAngle(val * MathHelper.DEGTORAD);
 			super.rotation = val;

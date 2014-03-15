@@ -89,7 +89,7 @@
 			}
 			
 			_carLayer.init(dict); 
-			_carLayer.initCops(2);
+			_carLayer.initCops(1);
 			_stepTimer = new Timer(_stepTime);
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
