@@ -112,7 +112,8 @@
 				angle = angleToPoint(node.point);
 			}
 			if (this.actions[currAction] > 1){
-				deltaRot= ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
+				deltaRot = ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
+				//trace("Angle: " + angle);
 				if (Math.abs(angle) > 90 && this.velocity > -5)
 					this.velocity --;
 				else if (this.velocity < this.MAX_VEL)
@@ -160,8 +161,13 @@
 			if (deltaRot > 10 || deltaRot < -10)
 				deltaRot = 10 * signOf(deltaRot);
 			trace("deltaRot: " + deltaRot);
-			rotation += deltaRot;
+			rotation -= deltaRot;
+			if (velocity > MAX_VEL)
+				velocity = MAX_VEL;
+			else if (velocity < -MAX_VEL)
+				velocity = -MAX_VEL;
 			this._body.SetLinearVelocity(new b2Vec2(vVel.x, vVel.y));
+			trace("Linear Velocity: " + this._body.GetLinearVelocity().x + "\t" + this._body.GetLinearVelocity().y);
 			//this.x += vVel.x;
 			//this.y += vVel.y
 		}
@@ -206,7 +212,12 @@
 		public function angleToPoint(point:Point):Number{
 			var angle:Number = Math.atan2(point.y - this.y, point.x - this.x);
 			angle *= (180 / Math.PI);
-			return angle;
+			angle=90;
+			if (angle > 180)
+				angle -= 180;
+			if (angle < -180)
+				angle += 180;
+			return angle-rotation;
 		}
 
 		public function getX():Number { return _body.GetPosition().x * GameScreen.SCALE; }
