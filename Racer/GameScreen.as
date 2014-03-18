@@ -200,7 +200,15 @@
 			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
-				win();
+				//win();
+			}else if((o1 is DropoffPoint && o2 is Player) || (o2 is DropoffPoint && o1 is Player)){
+				trace("Dropoff Made");
+				try{
+					if(o1 is DropoffPoint) this._backgroundClip.removeChild(o1 as DisplayObject);
+					else this._backgroundClip.removeChild(o2 as DisplayObject);
+					(_backgroundClip as Level).droppoffsLeft --;
+					if((_backgroundClip as Level).droppoffsLeft <= 0) win();
+				}catch(e:Error){}
 			}else if(o1 is Player || o2 is Player){
 				_player.takeDamage(e.point);
 			}
@@ -211,9 +219,7 @@
 			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
-				win();
-			}else if(o1 is Player || o2 is Player){
-				_player.takeDamage(e.point);
+				//win();
 			}
 		}
 		
