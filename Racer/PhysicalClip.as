@@ -27,6 +27,8 @@
 		}
 		
 		protected virtual function setupPhys(){}
+		
+		public function get body():b2Body { return _body; }
 
 	}
 	

@@ -16,6 +16,7 @@
 	import flash.ui.Keyboard;
 	import flash.display.Graphics;
 	import Box2D.Dynamics.b2ContactListener;
+	import Box2D.Dynamics.b2Body;
 	
 	public class GameScreen extends Sprite{
 		public static const FRICTION:Number = 10;
@@ -25,7 +26,7 @@
 		private var dbg:b2DebugDraw;
 		private var centerSprite:Sprite;
 		
-		private var _cameraMode:int = 0;
+		private static var CAMERA_MODE:int = 0; //Made static so its constant over resets
 		private var _wasCDown:Boolean = false;
 		
 		var _carLayer:CarLayer;
@@ -40,6 +41,8 @@
 		private var _contactListener:ContactListener;
 		private var _stepTime:Number = 0.042;
 		private var _stepTimer:Timer;
+		
+		private var _removalBodies:Vector.<b2Body> = new Vector.<b2Body>();
 		
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
@@ -89,6 +92,8 @@
 			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_aabbBit);
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
+			
+			this.addEventListener(Event.REMOVED_FROM_STAGE, cleanup);
 		}
 		
 		private function update(event:Event){
@@ -118,9 +123,15 @@
 			_wasQDown = Keyboarder.keyIsDown(Keyboard.Q);
 			
 			if(Keyboarder.keyIsDown(Keyboard.C) && !_wasCDown){
-				this._cameraMode = (this._cameraMode+1)%2;
+				CAMERA_MODE = (CAMERA_MODE+1)%2;
 			}
 			_wasCDown = Keyboarder.keyIsDown(Keyboard.C);
+			
+			for each(var b:b2Body in this._removalBodies){
+				_world.DestroyBody(b);
+			}
+			if(this._removalBodies.length > 0) trace("Removed " + _removalBodies.length + " bodies.");
+			_removalBodies = new Vector.<b2Body>();
 			
 			_world.Step(_stepTime,10,10);
 			_world.ClearForces();
@@ -144,47 +155,24 @@
 			var difX:Number = (camX - lastX)*2;
 			var difY:Number = (camY - lastY)*2;
 			var difR:Number = (camR - lastR)*2;
-			if(this._cameraMode == 0){
-				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
-				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
-				_rotationContainer.rotation = camR + difR -90;//(camR + lastR) / 2 - 90;
-				//_player.rotation = -90;
 				
-				//var r:Number = Math.atan(camR - lastR);
-				//_player.x = r * (camY - lastY);
-				//_player.y = (1/r) * (camX - lastX);
+			lastX = -_player.position.x;
+			lastY = -_player.position.y;
+			lastR = -_player.rot;
 				
-				lastX = -_player.position.x;
-				lastY = -_player.position.y;
-				lastR = -_player.rot;
+			_player.x = _player.position.x;
+			_player.y = _player.position.y;
+			_player.rotation = _player.rot;
+			
+			if(CAMERA_MODE == 0){
+				_translationContainer.x = camX + difX;
+				_translationContainer.y = camY + difY;
+				_rotationContainer.rotation = camR + difR -90;
 				
-				_player.x = _player.position.x;
-				_player.y = _player.position.y;
-				_player.rotation = _player.rot;
-			}else if(this._cameraMode == 1){
-				/*
-				_translationContainer.x = -_player.position.x;
-				_translationContainer.y = -_player.position.y;
+			}else if(CAMERA_MODE == 1){
+				_translationContainer.x = camX + difX;
+				_translationContainer.y = camY + difY;
 				_rotationContainer.rotation = 0;
-				_player.rotation = _player.rot;*/
-				
-				_translationContainer.x = camX + difX;//(camX + lastX) / 2;
-				_translationContainer.y = camY + difY;//(camY + lastY) / 2;
-				_rotationContainer.rotation = 0;//camR + difR -90;//(camR + lastR) / 2 - 90;
-				//_player.rotation = -90;
-				
-				//var r:Number = Math.atan(camR - lastR);
-				//_player.x = r * (camY - lastY);
-				//_player.y = (1/r) * (camX - lastX);
-				
-				lastX = -_player.position.x;
-				lastY = -_player.position.y;
-				lastR = -_player.rot;
-				
-				_player.x = _player.position.x;
-				_player.y = _player.position.y;
-				_player.rotation = _player.rot;
-				
 			}
 			
 			this.x = stage.stageWidth/2;
@@ -203,12 +191,17 @@
 				//win();
 			}else if((o1 is DropoffPoint && o2 is Player) || (o2 is DropoffPoint && o1 is Player)){
 				trace("Dropoff Made");
-				try{
-					if(o1 is DropoffPoint) this._backgroundClip.removeChild(o1 as DisplayObject);
-					else this._backgroundClip.removeChild(o2 as DisplayObject);
-					(_backgroundClip as Level).droppoffsLeft --;
-					if((_backgroundClip as Level).droppoffsLeft <= 0) win();
-				}catch(e:Error){}
+				if(o1 is DropoffPoint) {
+					this._backgroundClip.removeChild(o1 as DisplayObject);
+					this.removeBody((o1 as PhysicalClip).body);
+				}
+				else {
+					this._backgroundClip.removeChild(o2 as DisplayObject);
+					this.removeBody((o2 as PhysicalClip).body);
+				}
+				(_backgroundClip as Level).droppoffsLeft --;
+				if((_backgroundClip as Level).droppoffsLeft <= 0) win();
+				
 			}else if(o1 is Player || o2 is Player){
 				_player.takeDamage(e.point);
 			}
@@ -235,8 +228,14 @@
 		public function get world():b2World { return _world; }
 		public function get stepTime():Number { return _stepTime; }
 	
+		public function removeBody(body:b2Body):void { _removalBodies.push(body); }
+		
 		public override function addChild(child:DisplayObject):DisplayObject{
 			return this._translationContainer.addChild(child);
+		}
+		
+		public function cleanup(e:Event){
+			this._stepTimer.stop();
 		}
 	}
 	
