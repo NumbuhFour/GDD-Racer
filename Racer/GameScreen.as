@@ -69,6 +69,7 @@
 			
 			this.addEventListener(ContactListener.CONTACT_MADE, onContactMade);
 			this.addEventListener(ContactListener.CONTACT_REMOVED, onContactLost);
+			this.addEventListener(ContactListener.CONTACT_POSTSOLVE, onContactPostSolve);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
@@ -154,11 +155,7 @@
 			var camR:Number = -_player.rot;
 			var difX:Number = (camX - lastX)*2;
 			var difY:Number = (camY - lastY)*2;
-			var difR:Number = (camR - lastR)*2;
-				
-			lastX = -_player.position.x;
-			lastY = -_player.position.y;
-			lastR = -_player.rot;
+			var difR:Number = (camR - lastR)*3.5;
 				
 			_player.x = _player.position.x;
 			_player.y = _player.position.y;
@@ -177,6 +174,10 @@
 			
 			this.x = stage.stageWidth/2;
 			this.y = stage.stageHeight/2;
+				
+			lastX = -_player.position.x;
+			lastY = -_player.position.y;
+			lastR = -_player.rot;
 			
 			//_player.x = _player.position.x;
 			//_player.y = _player.position.y;
@@ -202,8 +203,6 @@
 				(_backgroundClip as Level).droppoffsLeft --;
 				if((_backgroundClip as Level).droppoffsLeft <= 0) win();
 				
-			}else if(o1 is Player || o2 is Player){
-				_player.takeDamage(e.point);
 			}
 		}
 		
@@ -213,6 +212,16 @@
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
 				//win();
+			}
+		}
+		
+		//Post solve because for some reason this is the only event which gives the force behind a collision
+		public function onContactPostSolve(e:ContactEvent){
+			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
+			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
+			
+			if((o1 is Player && !e.point.GetFixtureB().IsSensor()) || (o2 is Player && !e.point.GetFixtureA().IsSensor())){
+				_player.takeDamage(e.point, e.impulse);
 			}
 		}
 		

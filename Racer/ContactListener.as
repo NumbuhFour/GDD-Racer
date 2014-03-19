@@ -14,6 +14,8 @@
 		public static const CONTACT_MADE:String = "b2ContactAdd";
 		//public static const CONTACT_PERSIST:String = "b2ContactPersist";
 		public static const CONTACT_REMOVED:String = "b2ContactRemoved";
+		public static const CONTACT_PRESOLVE:String = "b2ContactPreSolve";
+		public static const CONTACT_POSTSOLVE:String = "b2ContactPostSolve";
 		
 		private var _clip:Sprite;
 		
@@ -32,11 +34,13 @@
         }
  
         public override function PreSolve(contact:b2Contact, oldManifold:b2Manifold):void {
-			//this._clip.dispatchEvent(new ContactEvent(CONTACT_PERSIST,point));
+			this._clip.dispatchEvent(new ContactEvent(CONTACT_PRESOLVE,contact,oldManifold));
         }
  
         /// Called after a contact point is solved.
         public override function PostSolve(contact:b2Contact, impulse:b2ContactImpulse):void {
+			this._clip.dispatchEvent(new ContactEvent(CONTACT_POSTSOLVE,contact, null, impulse));
+			
         }
 
 	}
