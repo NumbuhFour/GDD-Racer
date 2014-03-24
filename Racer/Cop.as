@@ -23,6 +23,7 @@
 		private var los:Boolean =false;
 		private var vPos:Point = new Point();
 		private var vVel:Point = new Point();
+		private var utilPoint:Point = new Point();
 		private var node:Node;
 		private var dispatch:Dispatch;
 		private var currAction:String;
@@ -99,11 +100,7 @@
 			_body.SetAngularVelocity(0);
 			_body.SetLinearVelocity(new b2Vec2());
 			
-			var radians:Number = rotation * Math.PI/180;
-			this.vVel.x = Math.cos(radians) * velocity;
-			this.vVel.y = Math.sin(radians) * velocity;
-			this.vPos.x = this.getX();
-			this.vPos.y = this.getY();
+			
 			var angle:Number;
 			if (this.actions[currAction] == 4){
 				angle = angleToPoint(calculateInterceptPoint());
@@ -112,13 +109,49 @@
 				angle = angleToPoint(node.point);
 			}
 			if (this.actions[currAction] > 1){
+				if (angle > 360)
+					angle -= 360;
+				else if (angle < 0)
+					angle += 360;
 				deltaRot = ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
-				//trace("Angle: " + angle);
-				if (Math.abs(angle) > 90 && this.velocity > -5)
-					this.velocity --;
-				else if (this.velocity < this.MAX_VEL)
+				if ((Math.abs(angle) > 120 && Math.abs(angle) < 240) && this.velocity > -5){
+					//trace("back up\t" + angle + "\n");
+					this.velocity -= .5;
+				}
+				else if (this.velocity < this.MAX_VEL){
 					this.velocity += .5;
-				var rightRect:Rectangle = this.getChildByName("rightFeeler").getRect(this);
+					//trace("chase\t" + angle + "\n");
+				}
+				//TODO check forward and back at the same time
+				var dX:Number = this.vVel.x;
+				var dY:Number = this.vVel.y;
+				var left:int = 0;
+				var mid:int = 0;
+				var right:int = 0;
+				var leftPoint:Point;
+				var rightPoint:Point;
+				while (Math.abs(dX) < Math.abs(this.vVel.x * 5) && (left == 0 || mid == 0 || right == 0)){
+						//TODO if player hits mid ignore rest
+						leftPoint = rotatePoint(dX, dY, -30);
+						rightPoint = rotatePoint(dX, dY, 30);
+						for each (var building:Building in this.gameScreen._buildings){
+							if (building.hitTestPoint(this.x + dX, this.y + dY, false))
+								mid = dX / vVel.x;
+							if (building.hitTestPoint(this.x + leftPoint.x, this.y + leftPoint.y, false))
+								left = dX / vVel.x;
+							if (building.hitTestPoint(this.x + rightPoint.x, this.y + rightPoint.y, false))
+								right = dX / vVel.x;
+						}
+						dX += vVel.x;
+						dY += vVel.y;
+				}
+				//if (mid < 3)
+				//	velocity -= mid*signOf(dX)/5;
+				if (mid != 0)
+					deltaRot += (left-right)/mid;
+				 
+				
+				/*var rightRect:Rectangle = this.getChildByName("rightFeeler").getRect(this);
 				var frontRect:Rectangle = this.getChildByName("frontFeeler").getRect(this);
 				var leftRect:Rectangle = this.getChildByName("leftFeeler").getRect(this);
 				if (!(rightRect.intersects(player.getRect(this)) || 
@@ -144,40 +177,37 @@
 							velocity --;
 						}
 					}
-				}
+				}*/
 			}
 	
-			
-			/*var angle:int = angleToPlayer(calculateInterceptPoint());
-			trace(this.vPos + "\tangle: " + angle + "\trotation: " + rotation + "\tIntercept Point: " + calculateInterceptPoint());
-			rotation += ((angle) * (velocity/MAX_VEL))/20 * signOf(velocity);
-			
-			if (Math.abs(angle) > 90 && this.velocity > -5){
-				this.velocity --;
-			}
-			else if (this.velocity < this.MAX_VEL)
-				this.velocity ++;
-			*/
 			if (deltaRot > 10 || deltaRot < -10)
 				deltaRot = 10 * signOf(deltaRot);
-			trace("deltaRot: " + deltaRot);
-			rotation -= deltaRot;
+			//trace("deltaRot: " + deltaRot);
+			rotation += deltaRot;
 			if (velocity > MAX_VEL)
 				velocity = MAX_VEL;
-			else if (velocity < -MAX_VEL)
-				velocity = -MAX_VEL;
+			else if (velocity < (-MAX_VEL/2))
+				velocity = -MAX_VEL/2;
+			var radians:Number = rotation * Math.PI/180;
+			this.vVel.x = Math.cos(radians) * velocity;
+			this.vVel.y = Math.sin(radians) * velocity;
+			this.vPos.x = this.getX();
+			this.vPos.y = this.getY();
 			this._body.SetLinearVelocity(new b2Vec2(vVel.x, vVel.y));
-			trace("Linear Velocity: " + this._body.GetLinearVelocity().x + "\t" + this._body.GetLinearVelocity().y);
+			//trace("Linear Velocity: " + this._body.GetLinearVelocity().x + "\t" + this._body.GetLinearVelocity().y);
 			//this.x += vVel.x;
 			//this.y += vVel.y
 		}
 		
+		//checks if there are buildings between player and cop
 		public function canSeePlayer(buildings:Vector.<Building>):Boolean{
 			var multX:int = (player.position.x - this.x)/10;
 			var multY:int = (player.position.y - this.y)/10;
 			for (var j = 0; j < Math.abs(player.position.x - this.x)/10; j++){
 				for (var i:int = 0; i < buildings.length; i++){
-					if (buildings[i].hitTestPoint(this.x + (multX * j), this.y + (multY * j), false)){
+					if (buildings[i].hitTestPoint(this.x + (multX * j), this.y + (multY * j), false && i != 32)){
+						//trace(i + " " + buildings[i].x + "  " + buildings[i].y + "        " + (x+multX*j) + "  " + (y+multY*j));
+						buildings[i].transform.colorTransform.blueMultiplier = 2;
 						this.los = false;
 						return false;
 					}
@@ -185,6 +215,13 @@
 			}
 			this.los = true;
 				return true;
+		}
+		
+		private function rotatePoint(a:Number, b:Number, c:Number):Point{
+			utilPoint.x = Math.cos(c) * a + -Math.sin(c) * b;
+			utilPoint.y = Math.sin(c) * a + Math.cos(c) * b;
+			return utilPoint;
+			
 		}
 		
 		//returns the sign of a number
@@ -199,11 +236,12 @@
 		private function calculateInterceptPoint():Point{
 			var pos:Point = MathHelper.subPoints(player.position, vPos);
 			var vel:Point = MathHelper.subPoints(player.velocity, vVel);
-			trace("Pos: " + pos+ "\nVel: " + vel + "\nRot: " + rotation + "\n\n");
+			//trace("Pos: " + pos+ "\nVel: " + vel + "\nRot: " + rotation + "\n\n");
 			
 			var timeToClose:Number = 1;
 			if (vel.x != 0 || vel.y != 0)
-				timeToClose = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2)) / Math.sqrt(Math.pow(vel.x, 2) + Math.pow(vel.y, 2))
+				timeToClose = Math.sqrt(Math.pow(pos.x, 2) + Math.pow(pos.y, 2)) / Math.sqrt(Math.pow(vel.x, 2) + Math.pow(vel.y, 2))/2;
+			
 			//trace("ttc: " + timeToClose);
 			return MathHelper.addPoints(player.position, MathHelper.scalePoint(player.velocity, timeToClose));
 		}
@@ -212,11 +250,11 @@
 		public function angleToPoint(point:Point):Number{
 			var angle:Number = Math.atan2(point.y - this.y, point.x - this.x);
 			angle *= (180 / Math.PI);
-			angle=90;
-			if (angle > 180)
-				angle -= 180;
-			if (angle < -180)
-				angle += 180;
+			if (angle > 360)
+				angle = 360;
+			if (angle < 0)
+				angle += 360;
+			//trace("Angle: " + angle + "\tRotation: " + rotation + "\tDiff: " + (angle-rotation))
 			return angle-rotation;
 		}
 

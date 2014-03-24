@@ -10,7 +10,8 @@
 		private var _nodes:Dictionary = new Dictionary();
 		private var _playerInSight:Boolean;
 		private var _playerLoc:Point;
-		private var _closedList:Vector.<Node>;
+		private var _closedList:Vector.<Node> = new Vector.<Node>();
+		private var _playerAdjNodes:Vector.<Node> = new Vector.<Node>;
 		private var _gameScreen:GameScreen;
 		
 		public function get PlayerInSight():Boolean { return _playerInSight; }
@@ -34,24 +35,31 @@
 			}
 		}
 		
-		public function manageCops(cops:Vector.<Cop>, playerNodes:Vector.<Node>){
+		//manageCops
+		public function manageCops(cops:Vector.<Cop>){
 			for each (var c:Cop in cops){
 				if (c.LOS){
-					
+					if (c.State != "chase")
+						c.changeState("chase");
 				}
 				else{
+					if (c.State != "intercept")
+						c.changeState("intercept");
 					if (c.CurrNode == null)
 						c.CurrNode = findClosestNode(c);
 					if (c.getRect(_gameScreen).intersects(c.CurrNode.getRect(_gameScreen))){
-						this._closedList = new Vector.<Node>();
-						c.CurrNode = findNextNode(c.CurrNode, playerNodes);
+						trace("currNode: " + c.CurrNode.ID);
+						getAdjacentPlayerNodes();
+						this._closedList.length = 0;
+						c.CurrNode = findNextNode(c.CurrNode, c.CurrNode);
+						trace("currNode: " + c.CurrNode.ID);
 					}
 				}
 			}
 		}
 		
 		
-		
+		//findClosestNode
 		private function findClosestNode(cop:Cop):Node{
 			var viableNodes:Vector.<Node> = new Vector.<Node>();
 			var buildings:Vector.<Building> = _gameScreen.buildings;
@@ -64,7 +72,7 @@
 					while (i < buildings.length && clear == true){
 						if (buildings[i++].hitTestPoint(cop.x + (multX * j), cop.y + (multY * j), false)){
 							clear = false;
-							trace("cop: " + cop.x + ":" + cop.y + "\tNode: " + node.point);
+							//trace("cop: " + cop.x + ":" + cop.y + "\tNode: " + node.point);
 						}
 					}
 					if (clear == false)
@@ -87,26 +95,65 @@
 			return this.Nodes['n0001'];
 		}
 		
-		private function findNextNode(node:Node, playerNodes:Vector.<Node>):Node{
+		//findNextNode
+		private function findNextNode(orig:Node, node:Node):Node{
 			//checks to see if the node has already been accessed
 			for (var i:int = 0; i < _closedList.length; i++)
-				if (node == _closedList[i])
+				if (node.ID == _closedList[i].ID)
 					return null;
 			//checks to see if the node is a target node
-			for (i = 0; i < playerNodes.length; i++)
-				if (node.ID == playerNodes[i].ID)
-				 	return node;
-			for (i = 0; i < node.Nodes.length; i++){
-				var checkNode:Node = findNextNode(node, playerNodes);
-				if (checkNode != null)
+			for (i = 0; i < _playerAdjNodes.length; i++)
+				if (node.ID == _playerAdjNodes[i].ID){
+				 	trace("found node: " + node.ID);
 					return node;
+				}
+			//node is not on list, crosses it off the list
+			_closedList.push(node);
+			//checks surrounding nodes 
+			for each (var adjNode:Node in _nodes){
+				var flag:Boolean = true;
+				for (var j:int = 0; j < _closedList.length; j++)
+					if (adjNode.ID == _closedList[j].ID)
+						flag = false;
+				if (flag){
+					var checkNode:Node = findNextNode(orig, adjNode);
+					if (checkNode != null){
+						trace("returning node: " + checkNode.ID);
+						if (node.ID == orig.ID)
+							return checkNode;
+						return node;
+					}
+				}
 			}
 			return null;
 			
 		}
 		
-		
+		//getAdjacentPlayerNodes
+		private function getAdjacentPlayerNodes(){
+			for each (var node:Node in _nodes){
+				//trace("testing player node " + node.ID);
+				var multX:int = (node.X - _gameScreen._player.position.x)/10;
+				var multY:int = (node.Y - _gameScreen._player.position.y)/10;
+				var clear:Boolean = true;
+				var buildings:Vector.<Building> = _gameScreen.buildings;
+				for (var j = 0; j < Math.abs(node.X - _gameScreen._player.position.x)/10; j++){
+					var i:int = 0;
+					while (i < buildings.length && clear == true){
+						if (buildings[i++].hitTestPoint(_gameScreen._player.position.x + (multX * j), _gameScreen._player.position.y + (multY * j), false)){
+							clear = false;
+						}
+					}
+					if (clear == false)
+						break;
+				}
+				if (clear == true){
+					trace("player node: " + node.ID);
+					this._playerAdjNodes.push(node);
+				}
+			}
 
+		}
 	}
 	
 }

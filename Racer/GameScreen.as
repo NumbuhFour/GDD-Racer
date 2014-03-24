@@ -80,7 +80,7 @@
 			var j:int = 0;
 			for (var i:int = 0; i < background.numChildren; i++){
 				if(background.getChildAt(i) is Node){
-					trace(background.getChildAt(i).name);
+					//trace(background.getChildAt(i).name);
 					dict[background.getChildAt(i).name] = background.getChildAt(i);
 				}
 				else if (background.getChildAt(i) is Building){
