@@ -70,7 +70,7 @@
 				for (var j = 0; j < Math.abs(node.X - cop.x)/10; j++){
 					var i:int = 0;
 					while (i < buildings.length && clear == true){
-						if (buildings[i++].hitTestPoint(cop.x + (multX * j), cop.y + (multY * j), false)){
+						if (buildings[i++].getRect(_gameScreen._backgroundClip).contains(cop.x + (multX * j), cop.y + (multY * j))){
 							clear = false;
 							//trace("cop: " + cop.x + ":" + cop.y + "\tNode: " + node.point);
 						}
@@ -104,7 +104,7 @@
 			//checks to see if the node is a target node
 			for (i = 0; i < _playerAdjNodes.length; i++)
 				if (node.ID == _playerAdjNodes[i].ID){
-				 	trace("found node: " + node.ID);
+				 	//trace("found node: " + node.ID);
 					return node;
 				}
 			//node is not on list, crosses it off the list
@@ -118,7 +118,7 @@
 				if (flag){
 					var checkNode:Node = findNextNode(orig, adjNode);
 					if (checkNode != null){
-						trace("returning node: " + checkNode.ID);
+						//trace("returning node: " + checkNode.ID);
 						if (node.ID == orig.ID)
 							return checkNode;
 						return node;
@@ -131,16 +131,24 @@
 		
 		//getAdjacentPlayerNodes
 		private function getAdjacentPlayerNodes(){
+			//trace("player node LOS - player parent: " + _gameScreen._player.parent);
+			_playerAdjNodes.length = 0;
 			for each (var node:Node in _nodes){
-				//trace("testing player node " + node.ID);
+				//trace("testing player node " + node.ID + " " + node.parent);
 				var multX:int = (node.X - _gameScreen._player.position.x)/10;
 				var multY:int = (node.Y - _gameScreen._player.position.y)/10;
 				var clear:Boolean = true;
 				var buildings:Vector.<Building> = _gameScreen.buildings;
 				for (var j = 0; j < Math.abs(node.X - _gameScreen._player.position.x)/10; j++){
 					var i:int = 0;
+					var checkPoint:Point = _gameScreen._player.position;
+					checkPoint.x += (multX * j);
+					checkPoint.y += (multY * j);
 					while (i < buildings.length && clear == true){
-						if (buildings[i++].hitTestPoint(_gameScreen._player.position.x + (multX * j), _gameScreen._player.position.y + (multY * j), false)){
+						if (i == 32)
+							i++;
+						if (buildings[i++].getRect(_gameScreen._backgroundClip).containsPoint(checkPoint)){
+							//trace("building obstruct: " + (i-1) + " " + buildings[i-1].x + "," + buildings[i-1].y);
 							clear = false;
 						}
 					}
@@ -148,11 +156,14 @@
 						break;
 				}
 				if (clear == true){
-					trace("player node: " + node.ID);
-					this._playerAdjNodes.push(node);
+					//trace("player node: " + node.ID);
+					if (Math.pow(multX, 2) + Math.pow(multY, 2) < 30000){
+						//trace("node added");
+						this._playerAdjNodes.push(node);
+					}
 				}
 			}
-
+			//trace("end player node LOS\n");
 		}
 	}
 	

@@ -27,7 +27,7 @@
 					dispatch.PlayerLoc = this._gameScreen._player.position;
 				}
 			}
-			dispatch.manageCops(this.cops);
+			//dispatch.manageCops(this.cops);
 		}
 		
 		public function initCops(numCops:int){
@@ -37,7 +37,7 @@
 				cop.initWithPosition(_gameScreen.player, 0, 75, dispatch);
 				cops.push(cop);
 				addChild(cop);
-				cop = new Cop(this._gameScreen);
+				/*cop = new Cop(this._gameScreen);
 				cop.world = this._gameScreen.world;
 				cop.initWithPosition(_gameScreen.player, -200, 75, dispatch);
 				cops.push(cop);
@@ -46,7 +46,7 @@
 				cop.world = this._gameScreen.world;
 				cop.initWithPosition(_gameScreen.player, -300, 0, dispatch);
 				cops.push(cop);
-				addChild(cop);
+				addChild(cop);*/
 			
 		}
 		

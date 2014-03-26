@@ -109,6 +109,7 @@
 				angle = angleToPoint(node.point);
 			}
 			if (this.actions[currAction] > 1){
+				//fix this
 				if (angle > 360)
 					angle -= 360;
 				else if (angle < 0)
@@ -122,24 +123,60 @@
 					this.velocity += .5;
 					//trace("chase\t" + angle + "\n");
 				}
-				//TODO check forward and back at the same time
-				var dX:Number = this.vVel.x;
-				var dY:Number = this.vVel.y;
-				var left:int = 0;
-				var mid:int = 0;
-				var right:int = 0;
-				var leftPoint:Point;
-				var rightPoint:Point;
-				while (Math.abs(dX) < Math.abs(this.vVel.x * 5) && (left == 0 || mid == 0 || right == 0)){
+				var xComp:Number = Math.cos(MathHelper.DEGTORAD * rotation) * 83;
+				var yComp:Number = Math.sin(MathHelper.DEGTORAD * rotation) * 83;
+				var dX:Number = xComp;
+				var dY:Number = yComp; 
+				var leftFront:int = 6;
+				var midFront:int = 6;
+				var rightFront:int =60;
+				var leftBack:int = 6;
+				var midBack:int = 6;
+				var rightBack:int = 6;
+				var checkPoint:Point;
+				var counter:int = 0;
+				//check to see if there is anything directly in front
+				while (counter < 5 && (leftFront == 0 || rightFront == 0 || midFront == 0)){
+					counter++;
+					dX += xComp/2;
+					dY += yComp/2;
+					for each (var building:Building in this.gameScreen._buildings){
+						if (midFront == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x + dX, this.y + dY))
+							midFront = counter;
+						if (midBack == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x - dX, this.y - dY))
+							midBack = counter;
+						checkPoint = rotatePoint(dX, dY, -30);
+						if (leftFront == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x + checkPoint.x, this.y + checkPoint.y))
+							leftFront = counter;
+						if (leftBack == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x - checkPoint.x, this.y - checkPoint.y))
+							leftBack = counter;
+						checkPoint = rotatePoint(dX, dY, 30);
+						if (rightFront == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x + checkPoint.x, this.y + checkPoint.y))
+							rightFront = counter;
+						if (rightBack == 0 && building.getRect(gameScreen._backgroundClip).contains(this.x - checkPoint.x, this.y - checkPoint.y))
+							rightBack = counter;						
+					}
+				}
+				//
+				
+				if (midFront < 5 || midBack < 5){
+					if (midFront < midBack && (leftFront < leftBack || rightFront < rightBack))
+						this.velocity -= .5;
+					else if (midBack < midFront && (leftBack > leftFront || rightBack < rightFront))
+						this.velocity += .5;
+				}
+				
+				
+				/*while (Math.abs(dX-xComp) < Math.abs( * 5) && (left == 0 || mid == 0 || right == 0)){
 						//TODO if player hits mid ignore rest
 						leftPoint = rotatePoint(dX, dY, -30);
 						rightPoint = rotatePoint(dX, dY, 30);
 						for each (var building:Building in this.gameScreen._buildings){
-							if (building.hitTestPoint(this.x + dX, this.y + dY, false))
+							if (building.getRect(gameScreen._backgroundClip).contains(this.x + dX, this.y + dY))
 								mid = dX / vVel.x;
-							if (building.hitTestPoint(this.x + leftPoint.x, this.y + leftPoint.y, false))
+							if (building.getRect(gameScreen._backgroundClip).contains(this.x + leftPoint.x, this.y + leftPoint.y))
 								left = dX / vVel.x;
-							if (building.hitTestPoint(this.x + rightPoint.x, this.y + rightPoint.y, false))
+							if (building.getRect(gameScreen._backgroundClip).contains(this.x + rightPoint.x, this.y + rightPoint.y))
 								right = dX / vVel.x;
 						}
 						dX += vVel.x;
@@ -149,40 +186,9 @@
 				//	velocity -= mid*signOf(dX)/5;
 				if (mid != 0)
 					deltaRot += (left-right)/mid;
-				 
+				*/
 				
-				/*var rightRect:Rectangle = this.getChildByName("rightFeeler").getRect(this);
-				var frontRect:Rectangle = this.getChildByName("frontFeeler").getRect(this);
-				var leftRect:Rectangle = this.getChildByName("leftFeeler").getRect(this);
-				if (!(rightRect.intersects(player.getRect(this)) || 
-					frontRect.intersects(player.getRect(this)) || 
-					leftRect.intersects(player.getRect(this)))){
-					for (var i:int = 0; i < gameScreen.background.numChildren; i++){
-						var rect:Rectangle = gameScreen.background.getChildAt(i).getRect(parent.parent);
-						if (rect.intersects(rightRect) && !rect.intersects(leftRect)){
-							deltaRot += 5;
-							if (velocity > MAX_VEL/2)
-								velocity --;
-						}
-						else if (rect.intersects(leftRect) && !rect.intersects(rightRect)){
-							deltaRot -= 5;
-							if (velocity > MAX_VEL/2)
-								velocity --;
-						}
-						else if (rect.intersects(leftRect) && rect.intersects(rightRect) && !rect.intersects(rightRect)){
-							
-						}
-						else if (rect.intersects(leftRect) && rect.intersects(rightRect) && rect.intersects(frontRect)){
-							deltaRot += 5;							
-							velocity --;
-						}
-					}
-				}*/
 			}
-	
-			if (deltaRot > 10 || deltaRot < -10)
-				deltaRot = 10 * signOf(deltaRot);
-			//trace("deltaRot: " + deltaRot);
 			rotation += deltaRot;
 			if (velocity > MAX_VEL)
 				velocity = MAX_VEL;
@@ -205,11 +211,12 @@
 			var multY:int = (player.position.y - this.y)/10;
 			for (var j = 0; j < Math.abs(player.position.x - this.x)/10; j++){
 				for (var i:int = 0; i < buildings.length; i++){
-					if (buildings[i].hitTestPoint(this.x + (multX * j), this.y + (multY * j), false && i != 32)){
-						//trace(i + " " + buildings[i].x + "  " + buildings[i].y + "        " + (x+multX*j) + "  " + (y+multY*j));
-						buildings[i].transform.colorTransform.blueMultiplier = 2;
-						this.los = false;
-						return false;
+					if (i != 32){
+						if (buildings[i].getRect(gameScreen._backgroundClip).contains(this.x + (multX * j), this.y + (multY * j)) && i != 32){
+							//trace(i + " " + buildings[i].x + "  " + buildings[i].y + "        " + (x+multX*j) + "  " + (y+multY*j));
+							this.los = false;
+							return false;
+						}
 					}
 				}
 			}
