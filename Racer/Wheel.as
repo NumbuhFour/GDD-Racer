@@ -25,6 +25,7 @@
 		private var _maxForward:Number = 20;
 		private var _maxBackward:Number = -10;
 		private var _maxDrive:Number = 100;
+		private var _damage:Number = 0;
 		private var TURN:Number = 20;
 		
 		private var _maxLateral:Number = 8.5;
@@ -56,11 +57,12 @@
 		}
 	
 		
-		public function setCharacteristics(maxForward:Number, maxBackward:Number, maxDrive:Number, maxLateral:Number){
+		public function setCharacteristics(maxForward:Number, maxBackward:Number, maxDrive:Number, maxLateral:Number, damage:Number){
 			this._maxForward = maxForward;
 			this._maxBackward = maxBackward;
 			this._maxDrive = maxDrive;
 			this._maxLateral = maxLateral;
+			this._damage = damage;
 		}		
 		
 		public function getLateralVelocity():b2Vec2 {
@@ -92,7 +94,7 @@
 			//Forward drag
 			var currentForwardNormal:b2Vec2 = getForwardVelocity();
 			var currentForwardSpeed:Number = currentForwardNormal.Normalize();
-			var dragForceMagnitude = -1 * currentForwardSpeed;
+			var dragForceMagnitude = (-1 - _damage/35) * currentForwardSpeed;
 			currentForwardNormal.Multiply(dragForceMagnitude);
 			_body.ApplyForce(currentForwardNormal, _body.GetWorldCenter());
 		}
@@ -112,8 +114,8 @@
 			
 			if(up || down) {
 				var desiredSpeed:Number = 0;
-				if(up) desiredSpeed = this._maxForward;
-				else if(down) desiredSpeed = this._maxBackward;
+				if(up) desiredSpeed = this._maxForward - _damage/70;
+				else if(down) desiredSpeed = this._maxBackward - _damage/70;
 				
 				var currentForwardNormal:b2Vec2 = _body.GetWorldVector(new b2Vec2(1,0));
 				var currentSpeed:Number = b2Math.Dot(getForwardVelocity(), currentForwardNormal);

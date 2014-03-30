@@ -1,4 +1,3 @@
-﻿
 ﻿package  Racer{
 	
 	import flash.display.Sprite;
@@ -6,9 +5,9 @@
 	import flash.display.DisplayObject;
 	import flash.events.Event;
 	import flash.geom.Point;
-	import flash.utils.Dictionary;
 	import Box2D.Collision.*;
 	import Box2D.Dynamics.b2World;
+	import flash.utils.Dictionary;
 	import Box2D.Common.Math.b2Vec2;
 	import flash.utils.Timer;
 	import flash.events.TimerEvent;
@@ -18,6 +17,7 @@
 	import flash.ui.Keyboard;
 	import flash.display.Graphics;
 	import Box2D.Dynamics.b2ContactListener;
+	import Box2D.Dynamics.b2Body;
 	
 	public class GameScreen extends Sprite{
 		public static const FRICTION:Number = 10;
@@ -27,6 +27,9 @@
 		private var dbg:b2DebugDraw;
 		private var centerSprite:Sprite;
 		private static const XML_PATH:String = "data/gameData.xml";
+		
+		private static var CAMERA_MODE:int = 0; //Made static so its constant over resets
+		private var _wasCDown:Boolean = false;
 		
 		var _carLayer:CarLayer;
 		var _buildingLayer:BuildingLayer;
@@ -41,6 +44,8 @@
 		private var _contactListener:ContactListener;
 		private var _stepTime:Number = 0.042;
 		private var _stepTimer:Timer;
+		
+		private var _removalBodies:Vector.<b2Body> = new Vector.<b2Body>();
 		
 		public function GameScreen(backgroundClip:MovieClip) {
 			this._backgroundClip = backgroundClip;
@@ -68,14 +73,15 @@
 			_world.SetContactListener(_contactListener);
 			
 			this.addEventListener(ContactListener.CONTACT_MADE, onContactMade);
+			this.addEventListener(ContactListener.CONTACT_REMOVED, onContactLost);
+			this.addEventListener(ContactListener.CONTACT_POSTSOLVE, onContactPostSolve);
 			
 			_carLayer = new CarLayer(this);
 			addChild(_carLayer);
 
 			_player = new Player();
-			super.addChild(_player);
+			addChild(_player);
 			_player.world = _world;
-			
 			var dict:Dictionary = new Dictionary();
 			var j:int = 0;
 			for (var i:int = 0; i < background.numChildren; i++){
@@ -90,6 +96,7 @@
 			
 			_carLayer.init(dict); 
 			_carLayer.initCops(1);
+			
 			_stepTimer = new Timer(_stepTime);
 			_stepTimer.addEventListener(TimerEvent.TIMER, update);
 			_stepTimer.start();
@@ -103,6 +110,8 @@
 			dbg.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_centerOfMassBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_aabbBit);
 			_world.SetDebugDraw(dbg);
 			addChild(dbg.GetSprite());
+			
+			this.addEventListener(Event.REMOVED_FROM_STAGE, cleanup);
 		}
 		
 		private function update(event:Event){
@@ -123,14 +132,23 @@
 					for(var iy:Number = -size; iy < size; iy++){
 						g.moveTo(-size*sqr,iy*sqr);
 						g.lineTo(size*sqr,iy*sqr);
-					}
-import Racer.Building;
-							
+					}		
 				}else{
 					g.clear();
 				}
 			}
 			_wasQDown = Keyboarder.keyIsDown(Keyboard.Q);
+			
+			if(Keyboarder.keyIsDown(Keyboard.C) && !_wasCDown){
+				CAMERA_MODE = (CAMERA_MODE+1)%2;
+			}
+			_wasCDown = Keyboarder.keyIsDown(Keyboard.C);
+			
+			for each(var b:b2Body in this._removalBodies){
+				_world.DestroyBody(b);
+			}
+			if(this._removalBodies.length > 0) trace("Removed " + _removalBodies.length + " bodies.");
+			_removalBodies = new Vector.<b2Body>();
 			
 			_world.Step(_stepTime,10,10);
 			_world.ClearForces();
@@ -146,42 +164,40 @@ import Racer.Building;
 			this.init();
 		}
 		
-		private var lastOffX:Number = 0;
-		private var lastOffY:Number = 0;
-		private var lastOffPX:Number = 0;
-		private var lastOffPY:Number = 0;
-		
+		private var lastX:Number = 0;
+		private var lastY:Number = 0;
+		private var lastR:Number = 0;
 		private function moveCamera(){
 			
-			//Camera offsetting with vel
-			var ratio:Number = 5;
-			var offX:Number = 0//-_player.velocity.x * SCALE / ratio;
-			var offY:Number = 0//-_player.velocity.y * SCALE / ratio;
-			var offPX:Number = 0//_player.getLateralVelocity().y*SCALE / ratio;
-			var offPY:Number = 0//_player.getForwardVelocity().x*SCALE / ratio;
-
-			offX = offY = offPX = offPY = 0; //Disabled
 			
-			offX = (lastOffX + offX)/2
-			offY = (lastOffY + offY)/2
-			offPX = (lastOffPX + offPX)/2
-			offPY = (lastOffPY + offPY)/2
+			var camX:Number = -_player.position.x;
+			var camY:Number = -_player.position.y;
+			var camR:Number = -_player.rot;
+			var difX:Number = (camX - lastX)*2;
+			var difY:Number = (camY - lastY)*2;
+			var difR:Number = (camR - lastR)*3.5;
+				
+			_player.x = _player.position.x;
+			_player.y = _player.position.y;
+			_player.rotation = _player.rot;
 			
-			_player.x = offPX;
-			_player.y = offPY;
-			
-			_translationContainer.x = -_player.position.x + offX;
-			_translationContainer.y = -_player.position.y + offY;
-			
-			lastOffX = offX;
-			lastOffY = offY;
-			lastOffPX = offPX;
-			lastOffPY = offPY;
+			if(CAMERA_MODE == 0){
+				_translationContainer.x = camX + difX;
+				_translationContainer.y = camY + difY;
+				_rotationContainer.rotation = camR + difR -90;
+				
+			}else if(CAMERA_MODE == 1){
+				_translationContainer.x = camX + difX;
+				_translationContainer.y = camY + difY;
+				_rotationContainer.rotation = 0;
+			}
 			
 			this.x = stage.stageWidth/2;
 			this.y = stage.stageHeight/2;
-			_rotationContainer.rotation = -_player.rot - 90;
-			_player.rotation = -90;
+				
+			lastX = -_player.position.x;
+			lastY = -_player.position.y;
+			lastR = -_player.rot;
 			
 			//_player.x = _player.position.x;
 			//_player.y = _player.position.y;
@@ -193,9 +209,39 @@ import Racer.Building;
 			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
 			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
 			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
-				win();
-			}else if(o1 is Player || o2 is Player){
-				_player.takeDamage(e.point);
+				//win();
+			}else if((o1 is DropoffPoint && o2 is Player) || (o2 is DropoffPoint && o1 is Player)){
+				trace("Dropoff Made");
+				if(o1 is DropoffPoint) {
+					this._backgroundClip.removeChild(o1 as DisplayObject);
+					this.removeBody((o1 as PhysicalClip).body);
+				}
+				else {
+					this._backgroundClip.removeChild(o2 as DisplayObject);
+					this.removeBody((o2 as PhysicalClip).body);
+				}
+				(_backgroundClip as Level).droppoffsLeft --;
+				if((_backgroundClip as Level).droppoffsLeft <= 0) win();
+				
+			}
+		}
+		
+		
+		public function onContactLost(e:ContactEvent){
+			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
+			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
+			if((o1 is Goal && o2 is Player) || (o2 is Goal && o1 is Player)){
+				//win();
+			}
+		}
+		
+		//Post solve because for some reason this is the only event which gives the force behind a collision
+		public function onContactPostSolve(e:ContactEvent){
+			var o1:Object = e.point.GetFixtureA().GetBody().GetUserData();
+			var o2:Object = e.point.GetFixtureB().GetBody().GetUserData();
+			
+			if((o1 is Player && !e.point.GetFixtureB().IsSensor()) || (o2 is Player && !e.point.GetFixtureA().IsSensor())){
+				_player.takeDamage(e.point, e.impulse);
 			}
 		}
 		
@@ -213,8 +259,14 @@ import Racer.Building;
 	
 		public function get buildings():Vector.<Building> { return _buildings; }
 	
+		public function removeBody(body:b2Body):void { _removalBodies.push(body); }
+		
 		public override function addChild(child:DisplayObject):DisplayObject{
 			return this._translationContainer.addChild(child);
+		}
+		
+		public function cleanup(e:Event){
+			this._stepTimer.stop();
 		}
 	}
 	
