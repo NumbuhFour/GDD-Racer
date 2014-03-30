@@ -11,7 +11,11 @@
 		private var _playerInSight:Boolean;
 		private var _playerLoc:Point;
 		private var _closedList:Vector.<Node> = new Vector.<Node>();
+		private var _openList:Vector.<Node> = new Vector.<Node>();
 		private var _playerAdjNodes:Vector.<Node> = new Vector.<Node>;
+		private var path:Vector.<Node> = new Vector.<Node>();
+		private var _nextList:Vector.<Node> = new Vector.<Node>();
+		private var parentDict:Dictionary = new Dictionary();
 		private var _gameScreen:GameScreen;
 		
 		public function get PlayerInSight():Boolean { return _playerInSight; }
@@ -43,16 +47,32 @@
 						c.changeState("chase");
 				}
 				else{
-					if (c.State != "intercept")
+					if (c.State != "intercept"){
+						c.CurrNode = findClosestNode(c);
 						c.changeState("intercept");
-					if (c.CurrNode == null)
+					}
+					if (!c.CurrNode)
 						c.CurrNode = findClosestNode(c);
 					if (c.getRect(_gameScreen).intersects(c.CurrNode.getRect(_gameScreen))){
-						trace("currNode: " + c.CurrNode.ID);
-						getAdjacentPlayerNodes();
-						this._closedList.length = 0;
-						c.CurrNode = findNextNode(c.CurrNode, c.CurrNode);
-						trace("currNode: " + c.CurrNode.ID);
+						//trace("reached Node: " + c.CurrNode.ID)						
+						var newPath:Boolean = true;
+						if (c.Path && c.Path.length != 0){
+							for each (var adjNode:Node in _playerAdjNodes){
+								if (c.Path[0] == adjNode){
+									c.CurrNode = c.Path.pop();
+									newPath = false;
+									break;
+								}
+							}
+						}
+						if (newPath){
+							trace("pathing");
+							trace("");
+							getAdjacentPlayerNodes();
+							if (this._playerAdjNodes.length != 0)
+								c.Path = getPath(c.CurrNode);
+						}
+						//trace("I'm off to node: " + c.CurrNode.ID);
 					}
 				}
 			}
@@ -61,13 +81,15 @@
 		
 		//findClosestNode
 		private function findClosestNode(cop:Cop):Node{
+			trace("closest node");
+			trace("");
 			var viableNodes:Vector.<Node> = new Vector.<Node>();
 			var buildings:Vector.<Building> = _gameScreen.buildings;
 			for each (var node:Node in this.Nodes){
 				var multX:int = (node.X - cop.x)/10;
 				var multY:int = (node.Y - cop.y)/10;
 				var clear:Boolean = true;
-				for (var j = 0; j < Math.abs(node.X - cop.x)/10; j++){
+				for (var j = 0; j < 10; j++){
 					var i:int = 0;
 					while (i < buildings.length && clear == true){
 						if (buildings[i++].getRect(_gameScreen._backgroundClip).contains(cop.x + (multX * j), cop.y + (multY * j))){
@@ -90,12 +112,75 @@
 					if (Math.abs(cop.angleToPoint(viableNodes[i].point)) < angle)
 						currNode = i;
 				}
+				//trace("I'm off to node " + viableNodes[currNode].ID);
 				return viableNodes[currNode];
 			}
+			trace("IM BLIIIINNNNNND");
 			return this.Nodes['n0001'];
 		}
 		
-		//findNextNode
+		private function getPath(currNode:Node):Vector.<Node>{
+			//path to be returned to cop
+			path.length = 0;
+			_openList.length = 0;
+			_closedList.length = 0;
+			_nextList.length = 0;
+			_openList.push(currNode);
+			parentDict = new Dictionary();
+			while (_closedList.length < 16){
+				for each (var node:Node in _openList){
+					//if node is a player node, assemble path and return it
+					for (var i = 0; i < _playerAdjNodes.length; i++){
+						if (node.ID == _playerAdjNodes[i].ID){
+							while (node != currNode){
+								//trace("pathing node: " + node.ID);
+								path.push(node);
+								node = parentDict[node];
+							}
+							return path;
+						}
+					}
+					//if node is not a player node, adds it to checked nodes
+					_closedList.push(node);
+					//adds adj nodes to list to be checked
+					for each (var adjNodeStr:String in node.Nodes){
+						var adjNode:Node = _nodes[adjNodeStr];
+						//ensures that adjNode has not already been checked
+						var flag:Boolean = true;
+						for each (var usedNode:Node in _closedList){
+							if (usedNode == adjNode){
+								flag = false;
+								break;
+							}
+						}
+						if (flag)
+							for each (var usedNode:Node in _openList){
+								if (usedNode == adjNode){
+									flag = false;
+									break;
+								}
+							}
+						if (flag)
+							for each (var usedNode:Node in _nextList){
+								if (usedNode == adjNode){
+									flag = false;
+									break;
+								}
+							}
+						if (flag){
+							_nextList.push(adjNode);
+							parentDict[adjNode] = node;
+						}
+					}
+				}
+				_openList.length = 0;
+				_openList = _nextList.concat();
+				_nextList.length = 0;
+			}
+			return null;
+		}
+		
+		/*
 		private function findNextNode(orig:Node, node:Node):Node{
 			//checks to see if the node has already been accessed
 			for (var i:int = 0; i < _closedList.length; i++)
@@ -104,7 +189,7 @@
 			//checks to see if the node is a target node
 			for (i = 0; i < _playerAdjNodes.length; i++)
 				if (node.ID == _playerAdjNodes[i].ID){
-				 	//trace("found node: " + node.ID);
+				 	trace("found node: " + node.ID);
 					return node;
 				}
 			//node is not on list, crosses it off the list
@@ -118,9 +203,11 @@
 				if (flag){
 					var checkNode:Node = findNextNode(orig, adjNode);
 					if (checkNode != null){
-						//trace("returning node: " + checkNode.ID);
-						if (node.ID == orig.ID)
+						if (node.ID == orig.ID){
+							trace("returning node: " + checkNode.ID);
 							return checkNode;
+						}
+						trace("path through node: " + node.ID);
 						return node;
 					}
 				}
@@ -128,13 +215,12 @@
 			return null;
 			
 		}
+		*/
 		
 		//getAdjacentPlayerNodes
 		private function getAdjacentPlayerNodes(){
-			//trace("player node LOS - player parent: " + _gameScreen._player.parent);
 			_playerAdjNodes.length = 0;
 			for each (var node:Node in _nodes){
-				//trace("testing player node " + node.ID + " " + node.parent);
 				var multX:int = (node.X - _gameScreen._player.position.x)/10;
 				var multY:int = (node.Y - _gameScreen._player.position.y)/10;
 				var clear:Boolean = true;
@@ -156,9 +242,8 @@
 						break;
 				}
 				if (clear == true){
-					//trace("player node: " + node.ID);
 					if (Math.pow(multX, 2) + Math.pow(multY, 2) < 30000){
-						//trace("node added");
+						//trace("Player could be at " + node.ID);
 						this._playerAdjNodes.push(node);
 					}
 				}
