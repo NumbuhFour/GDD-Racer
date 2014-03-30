@@ -1,4 +1,4 @@
-
+﻿
 ﻿package  Racer{
 	
 	import flash.display.MovieClip;
@@ -36,10 +36,6 @@
 			_background = new TestLevel();
 			_gameScreen = new GameScreen(_background)
 			//background = this.getChildByName("background_clip") as MovieClip;
-			
-			_gameScreen = new GameScreen(_background)
-			
-			
 			addChild(_gameScreen);
 		}
 		

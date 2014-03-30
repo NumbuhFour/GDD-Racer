@@ -167,8 +167,8 @@
 		private var lastX:Number = 0;
 		private var lastY:Number = 0;
 		private var lastR:Number = 0;
+		
 		private function moveCamera(){
-			
 			
 			var camX:Number = -_player.position.x;
 			var camY:Number = -_player.position.y;
