@@ -191,7 +191,7 @@
 				_translationContainer.y = camY + difY;
 				_rotationContainer.rotation = 0;
 			}
-			
+			trace(stage);
 			this.x = stage.stageWidth/2;
 			this.y = stage.stageHeight/2;
 				

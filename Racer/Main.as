@@ -1,12 +1,12 @@
 ﻿
 ﻿package  Racer{
 	
-	import flash.display.MovieClip;
+	import flash.display.*;
 	import com.as3toolkit.ui.Keyboarder;
 	import flash.events.KeyboardEvent;
 	import flash.ui.Keyboard;
 	
-	public class Main extends MovieClip {
+	public class Main extends MovieClip{
 		//Messy messy mess
 		public static var instance:Main;
 		
@@ -15,7 +15,7 @@
 		
 		public function Main() {
 			instance = this;
-			new Keyboarder(this);
+			new Keyboarder(stage);
 			stage.addEventListener(KeyboardEvent.KEY_UP, restartGameKey);
 			
 			startGame();
@@ -24,7 +24,7 @@
 			if(e.keyCode == Keyboard.R){
 				trace("Restarting");
 				this.win.visible = false;
-				this.removeChild(_gameScreen);
+				removeChild(_gameScreen);
 				startGame();
 			}
 		}
@@ -34,6 +34,7 @@
 			win.visible = false;
 
 			_background = new TestLevel();
+			_gameScreen = null;
 			_gameScreen = new GameScreen(_background)
 			//background = this.getChildByName("background_clip") as MovieClip;
 			addChild(_gameScreen);
