@@ -65,8 +65,18 @@
 		
 		public function Start()
 		{
+			addEventListener(Event.ADDED_TO_STAGE, loadXML);
+		}
+		
+		private function loadXML(e:Event){
+			removeEventListener(Event.ADDED_TO_STAGE, loadXML);
 			GameDataStore.sharedInstance.loadXML(XML_PATH);
 			GameDataStore.sharedInstance.addEventListener(GameDataStore.LOAD_COMPLETE, onXMLLoaded);
+		}
+		
+		public function onXMLLoaded(e:Event):void{
+			GameDataStore.sharedInstance.removeEventListener(GameDataStore.LOAD_COMPLETE, onXMLLoaded);
+			init();
 		}
 		
 		public function init(){
@@ -164,9 +174,6 @@
 			moveCamera();
 		}
 		
-		public function onXMLLoaded(e:Event):void{
-			init();
-		}
 		
 		private var lastX:Number = 0;
 		private var lastY:Number = 0;

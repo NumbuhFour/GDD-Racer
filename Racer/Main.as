@@ -42,8 +42,10 @@
 			_gameScreen = new GameScreen(_background)
 			_uiLayer._gameScreen = _gameScreen;
 			//background = this.getChildByName("background_clip") as MovieClip;
-			addChildAt(_gameScreen,0);
 			_gameScreen.Start();
+			addChildAt(_gameScreen,0);
+			_uiLayer.visible = false;
+
 		}
 		
 		public function winDerp(){

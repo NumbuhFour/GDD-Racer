@@ -15,6 +15,7 @@
 		//init() creates the starting hexagon, moves to the UILayer's game frame, and starts the countdown timer
 		private static function startGame(e:Event)
 		{
+			trace("Start button pressed");
 			Main.instance.startGame();
 		}
 	}
