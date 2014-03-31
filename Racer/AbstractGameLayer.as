@@ -4,7 +4,7 @@
 	
 	public class AbstractGameLayer extends Sprite{
 
-		protected var _gameScreen:GameScreen;
+		public var _gameScreen:GameScreen;
 		public function AbstractGameLayer(gameScreen:GameScreen) {
 			_gameScreen = gameScreen;
 		}

@@ -14,7 +14,7 @@
 		
 		private function onClick(e:Event)
 		{
-			(parent as UILayer).gotoAndStop('credits');
+			//(parent as UILayer).gotoAndStop('credits');
 		}
 	}
 	
