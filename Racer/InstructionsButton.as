@@ -14,7 +14,6 @@
 		
 		private function onClick(e:Event)
 		{
-			(parent as UILayer).gotoAndStop('instructions');
 		}
 	}
 	

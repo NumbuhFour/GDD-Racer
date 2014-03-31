@@ -35,7 +35,7 @@
 		var _buildingLayer:BuildingLayer;
 		var _player:Player;
 		var _backgroundClip:MovieClip;
-		var _uiLayer:UILayer;
+		
 		var _buildings:Vector.<Building> = new Vector.<Building>;
 		var _translationContainer:MovieClip;
 		var _rotationContainer:MovieClip;
@@ -61,6 +61,10 @@
 			centerSprite.graphics.drawCircle(0,0,20);
 			this._rotationContainer.addChild(centerSprite);
 			centerSprite.visible = DEBUG;
+		}
+		
+		public function Start()
+		{
 			GameDataStore.sharedInstance.loadXML(XML_PATH);
 			GameDataStore.sharedInstance.addEventListener(GameDataStore.LOAD_COMPLETE, onXMLLoaded);
 		}
@@ -161,7 +165,7 @@
 		}
 		
 		public function onXMLLoaded(e:Event):void{
-			this.init();
+			init();
 		}
 		
 		private var lastX:Number = 0;
