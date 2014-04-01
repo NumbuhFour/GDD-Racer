@@ -51,7 +51,14 @@
 		
 		public function winDerp(){
 			trace("derp");
-			this.win.visible = !this.win.visible;
+			_uiLayer.gotoAndStop("Win");
+			//this.win.visible = !this.win.visible;
+		}
+		
+		public function loseHerp(){
+			trace("herp");
+			_uiLayer.gotoAndStop("Lose");
+			//this.win.visible = !this.win.visible;
 		}
 	}
 	
