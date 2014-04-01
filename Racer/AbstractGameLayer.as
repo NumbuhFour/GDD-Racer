@@ -1,8 +1,8 @@
 ﻿package Racer {
 	
-	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	
-	public class AbstractGameLayer extends Sprite{
+	public class AbstractGameLayer extends MovieClip{
 
 		public var _gameScreen:GameScreen;
 		public function AbstractGameLayer(gameScreen:GameScreen) {

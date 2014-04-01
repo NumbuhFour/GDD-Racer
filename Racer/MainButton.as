@@ -14,7 +14,7 @@
 		
 		private function onClick(e:Event)
 		{
-			(parent as UILayer).gotoAndStop('main');
+			(parent as UILayer).gotoAndStop('Main');
 		}
 	}
 	

@@ -20,6 +20,7 @@
 			stage.addEventListener(KeyboardEvent.KEY_UP, restartGameKey);
 			//make game screen
 			_uiLayer = new UILayer(null);
+			_uiLayer.gotoAndStop("Main");
 			addChildAt(_uiLayer,1);
 			
 			//startGame();

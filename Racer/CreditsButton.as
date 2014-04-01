@@ -2,6 +2,7 @@
 	
 	import flash.display.SimpleButton;
 	import flash.events.*;
+	import flash.display.MovieClip;
 	
 	//Button that moves the player to the credits screen
 	public class CreditsButton extends SimpleButton {
@@ -14,7 +15,7 @@
 		
 		private function onClick(e:Event)
 		{
-			//(parent as UILayer).gotoAndStop('credits');
+			(parent as MovieClip).gotoAndStop("Credits");
 		}
 	}
 	

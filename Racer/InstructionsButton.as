@@ -2,6 +2,7 @@
 	
 	import flash.display.SimpleButton;
 	import flash.events.*;
+	import flash.display.MovieClip;
 	
 	//Button that moves the player to the instructions screen
 	public class InstructionsButton extends SimpleButton {
@@ -14,6 +15,8 @@
 		
 		private function onClick(e:Event)
 		{
+			trace(parent);
+			(parent as UILayer).gotoAndStop("Instructions");
 		}
 	}
 	
