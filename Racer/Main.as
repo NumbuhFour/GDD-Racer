@@ -38,25 +38,28 @@
 			
 			win.visible = false;
 
-			_background = new TestLevel();
-			_gameScreen = null;
+			_background = new Level2();
 			_gameScreen = new GameScreen(_background)
 			_uiLayer._gameScreen = _gameScreen;
 			//background = this.getChildByName("background_clip") as MovieClip;
 			_gameScreen.Start();
 			addChildAt(_gameScreen,0);
-			_uiLayer.visible = false;
+			_uiLayer.gotoAndStop("Game");
 
 		}
 		
 		public function winDerp(){
 			trace("derp");
+			removeChild(_gameScreen);
+			_gameScreen = null;
 			_uiLayer.gotoAndStop("Win");
 			//this.win.visible = !this.win.visible;
 		}
 		
 		public function loseHerp(){
 			trace("herp");
+			removeChild(_gameScreen);
+			_gameScreen = null;
 			_uiLayer.gotoAndStop("Lose");
 			//this.win.visible = !this.win.visible;
 		}

@@ -34,17 +34,17 @@
 					
 				var cop:Cop = new Cop(this._gameScreen);
 				cop.world = this._gameScreen.world;
-				cop.initWithPosition(_gameScreen.player, -200, 75, dispatch);
+				cop.initWithPosition(_gameScreen.player, 3088, 64, dispatch);
 				cops.push(cop);
 				addChild(cop);
 				cop = new Cop(this._gameScreen);
 				cop.world = this._gameScreen.world;
-				cop.initWithPosition(_gameScreen.player, -200, 370, dispatch);
+				cop.initWithPosition(_gameScreen.player, 3104, 2612, dispatch);
 				cops.push(cop);
 				addChild(cop);
 				cop = new Cop(this._gameScreen);
 				cop.world = this._gameScreen.world;
-				cop.initWithPosition(_gameScreen.player, -600, 0, dispatch);
+				cop.initWithPosition(_gameScreen.player, -257, 2612, dispatch);
 				cops.push(cop);
 				addChild(cop);
 			

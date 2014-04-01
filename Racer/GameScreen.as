@@ -98,13 +98,13 @@
 			_player.world = _world;
 			var dict:Dictionary = new Dictionary();
 			var j:int = 0;
-			for (var i:int = 0; i < background.numChildren; i++){
-				if(background.getChildAt(i) is Node){
-					//trace(background.getChildAt(i).name);
-					dict[background.getChildAt(i).name] = background.getChildAt(i);
+			for (var i:int = 0; i < _backgroundClip.numChildren; i++){
+				if(_backgroundClip.getChildAt(i) is Node){
+					//trace(_backgroundClip.getChildAt(i).name);
+					dict[_backgroundClip.getChildAt(i).name] = _backgroundClip.getChildAt(i);
 				}
-				else if (background.getChildAt(i) is Building){
-					_buildings.push(background.getChildAt(i));
+				else if (_backgroundClip.getChildAt(i) is Building){
+					_buildings.push(_backgroundClip.getChildAt(i));
 				}
 			}
 			
@@ -202,9 +202,10 @@
 				_translationContainer.y = camY + difY;
 				_rotationContainer.rotation = 0;
 			}
-			
-			this.x = stage.stageWidth/2;
-			this.y = stage.stageHeight/2;
+			if (stage){
+				this.x = stage.stageWidth/2;
+				this.y = stage.stageHeight/2;
+			}
 				
 			lastX = -_player.position.x;
 			lastY = -_player.position.y;
@@ -254,11 +255,18 @@
 			if((o1 is Player && !e.point.GetFixtureB().IsSensor()) || (o2 is Player && !e.point.GetFixtureA().IsSensor())){
 				_player.takeDamage(e.point, e.impulse);
 			}
+			if (_player.totalDamage > 1000)
+				lose();
 		}
 		
 		public function win(){
 			trace("WINNNNER!!!!");
 			Main.instance.winDerp();
+		}
+		
+		public function lose(){
+			trace("get pwned");
+			Main.instance.loseHerp();
 		}
 		
 		public function get player():Player { return _player; }

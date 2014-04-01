@@ -38,6 +38,8 @@
 		private var _wheelDamage:Vector.<Number>;
 		private var _totalDamage:Number = 0;
 		
+		public function get totalDamage():Number { return _totalDamage; }
+		
 		var maxForwardLeftSpeed:Number = 150;
 		var maxForwardRightSpeed:Number = 150;
 		var maxBackwardLeftSpeed:Number = -40;
