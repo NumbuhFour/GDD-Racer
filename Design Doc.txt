@@ -1,0 +1,18 @@
+Story: 
+You are a member of the infamous Lakota mafia, and part of the
+business is selling contraband peace pipes to the warring factions of 
+the city. Times are getting tough, and as the premier delivery boy for
+the Lakota mafia, it's your duty to deliver the peace pipes to the 
+dropoff points. Beware! Police have caught onto the operation and are
+looking to catch you red-handed with the contraband!
+
+Objective: Evade the police and make it to the three drop-off points
+without taking too much damage to your car
+
+Level Design:
+Currently have one level that several city blocks, with alleyways wide
+and narrow that the player can navigate. Drop off points are in 3 of
+the alleyways. 
+
+
+
